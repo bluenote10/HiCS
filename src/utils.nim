@@ -1,14 +1,6 @@
 
 import macros
 
-template runUnitTest*(name: string, code: stmt): stmt {.immediate.} =
-  when defined(testing):
-    echo "Running Test: ", name
-    block:
-      code
-
-template indices*(expr): expr = low(expr) .. high(expr)
-
 macro debug*(n: varargs[expr]): stmt =
   # `n` is a Nim AST that contains the whole macro invocation
   # this macro returns a list of statements:
@@ -29,3 +21,36 @@ macro debug*(n: varargs[expr]): stmt =
 
   # add new line
   add(result, newCall("writeln", newIdentNode("stdout"), newStrLitNode("")))
+
+
+template runUnitTest*(name: string, code: stmt): stmt {.immediate.} =
+  when defined(testing):
+    echo "Running Test: ", name
+    block:
+      code
+
+template indices*(expr): expr = low(expr) .. high(expr)
+
+
+proc zipWithIndex*[T](s: seq[T]): seq[tuple[index: int, value: T]] =
+  result = newSeq[(int, T)](s.len)
+  for i, x in s:
+    result[i] = (i, x)
+
+runUnitTest("zipWithIndex"):
+  let s1 = @["a", "b", "c"]
+  let s2 = s1.zipWithIndex()
+  assert(s2[0].index == 0)
+  assert(s2[0].value == "a")
+  assert(s2[1].index == 1)
+  assert(s2[1].value == "b")
+  assert(s2[2].index == 2)
+  assert(s2[2].value == "c")
+
+
+
+proc sortBy*[T,S](accessor: proc (x: T): S): proc (a: T, b: T): int =
+  result = proc (a: T, b: T): int =
+    system.cmp(accessor(a), accessor(b))
+
+

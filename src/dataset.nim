@@ -1,6 +1,8 @@
 
 import os, parsecsv, streams, future, sequtils, strutils
+import subspace
 import utils
+
 
 type
   Vector* = seq[float] # not nil
@@ -37,7 +39,11 @@ proc getCol*(ds: Dataset, i: int): Vector =
   for j in ds.rowIndices:
     result[j] = ds[j,i]
     
-
+proc isValidSubspace*(ds: Dataset, s: Subspace): bool =
+  let subspaceSeq = s.toSequence
+  let min = subspaceSeq.min
+  let max = subspaceSeq.max
+  result = min >= 0 and max < ds.ncols
 
 proc appendRow*(ds: var Dataset, row: Vector) =
   if ds.data.len == 0:
@@ -69,7 +75,8 @@ proc loadDataset*(filename: string, hasHeader = false): Dataset =
   while readRow(parser):
     try:
       let valuesOrig = toSeq(parser.row.items)
-      let valuesPrsd = valuesOrig.map(proc (s: string): float = s.parseFloat)
+      let valuesPrsd = valuesOrig.map((s: string) => s.parseFloat)
+      #let valuesPrsd = valuesOrig.map(proc (s: string): float = s.parseFloat)
 
       ds.appendRow(valuesPrsd)
     except ValueError:
