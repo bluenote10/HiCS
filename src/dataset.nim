@@ -1,5 +1,7 @@
 
-import os, parsecsv, streams, future, sequtils, strutils
+import os, parsecsv, streams, future, strutils
+#import sequtils except toSeq
+import sequtils
 import subspace
 import utils
 
@@ -40,7 +42,7 @@ proc getCol*(ds: Dataset, i: int): Vector =
     result[j] = ds[j,i]
     
 proc isValidSubspace*(ds: Dataset, s: Subspace): bool =
-  let subspaceSeq = s.toSequence
+  let subspaceSeq = s.asSeq # subspace.toSeq(s) #s.toSeq()
   let min = subspaceSeq.min
   let max = subspaceSeq.max
   result = min >= 0 and max < ds.ncols

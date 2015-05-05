@@ -1,5 +1,6 @@
 
 import macros
+#import tables
 
 macro debug*(n: varargs[expr]): stmt =
   # `n` is a Nim AST that contains the whole macro invocation
@@ -47,6 +48,24 @@ runUnitTest("zipWithIndex"):
   assert(s2[2].index == 2)
   assert(s2[2].value == "c")
 
+
+
+#proc mgetDefault[A, B](t: var Table[A, B]; key: A): var B =
+
+template ijForLoop*(N: int, s: stmt): stmt {.immediate.} =
+  for ii in 0 ..< N-1:
+    for jj in ii+1 .. <N:
+      let i {.inject.} = ii
+      let j {.inject.} = jj
+      s
+
+runUnitTest("ijForLoop"):
+  for N in 0 .. 10:
+    var c = 0
+    ijForLoop(N):
+      assert(i < j)
+      c += 1
+    assert(c == N*(N-1) div 2)
 
 
 proc sortBy*[T,S](accessor: proc (x: T): S): proc (a: T, b: T): int =
