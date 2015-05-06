@@ -11,7 +11,9 @@ traceback=false
 
 #nim c -r -o:bin/test --parallelBuild:1 --threads:on $file
 
-nim c -o:../bin/main --parallelBuild:1 -d:testing $file
+#nim c -o:../bin/main --parallelBuild:1 -d:testing $file
+
+nim c -o:../bin/main --parallelBuild:1 -d:testing -d:release $file
 
 compiler_exit=$?
 

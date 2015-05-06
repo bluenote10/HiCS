@@ -11,12 +11,15 @@ type
   IndexMap = seq[int] # not nil
   
   PreproData* = object
-    indexMaps: seq[IndexMap] not nil
+    indexMaps*: seq[IndexMap] not nil
 
-  Parameters = object
-    numIterations: int
-    alpha: float
+  Parameters* = object
+    numIterations*: int
+    alpha*: float
   
+
+proc initParameters*(numIterations: int = 100, alpha: float = 0.1): Parameters =
+  Parameters(numIterations: numIterations, alpha: alpha)
 
 
 proc generatePreprocessingData*(ds: Dataset): PreproData =
@@ -38,8 +41,12 @@ proc generatePreprocessingData*(ds: Dataset): PreproData =
 
 
 
-proc computeContrast*(ds: Dataset, subspace: Subspace, params: Parameters) =
+proc computeContrast*[T](subspace: Subspace, ds: Dataset, preproData: PreproData, params: Parameters, statTest: T): float =
+  # various assertions
   assert(ds.isValidSubspace(subspace))
+  assert(preproData.indexMaps.len == ds.ncols)
+  for m in preproData.indexMaps:
+    assert(m.len == ds.nrows)
 
   let D = ds.ncols
   let N = ds.nrows
@@ -47,8 +54,36 @@ proc computeContrast*(ds: Dataset, subspace: Subspace, params: Parameters) =
 
   debug D, N, M
 
+  var iselAll = newIndexSelection(N)
+  var iselCur = newIndexSelection(N)
+
+  var totalDev = 0.0
+
   for iter in 0 .. <params.numIterations:
-    echo iter
+    let cmpAttr = random(D)
+
+    # reset all object-indices as "selected" (selection is destructive)
+    iselAll.reset(true)
+
+    for j in 0 ..< D:
+      if j != cmpAttr:
+        iselCur.selectRandomBlock(M)
+        assert(iselCur.size == M)
+        # now convert from the rank-indices in dim j
+        # to global object-indices and unselect them
+        # if they are not part of the selection block
+        for indRank, used in iselCur:
+          if not used:
+            let indObject = preproData.indexMaps[j][indRank]
+            iselAll[indObject] = false
+    
+    let deviation: float = statTest.computeDeviation(ds, cmpAttr, iselAll)
+    totalDev += deviation
+
+    let numRemainingObjects = iselAll.size
+    debug iter, cmpAttr, deviation, numRemainingObjects
+
+  return totalDev / params.numIterations.toFloat
 
 #let N = 500
 #let D = 10

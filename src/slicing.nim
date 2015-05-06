@@ -16,41 +16,46 @@ when defined(testing):
 
 
 type
-  IndexBlock = seq[bool]
+  IndexSelection* = seq[bool]
 
-proc newIndexBlock(N: int): IndexBlock =
-  newSeq[bool](N)
 
-#template newIndexBlock(N: int): expr =
-#  var s: IndexBlock = newSeq[bool](N)
-#  s
-
-proc size(iblock: IndexBlock): int =
+proc size*(isel: IndexSelection): int =
   result = 0
-  for b in iblock:
+  for b in isel:
     if b:
       result += 1
 
-proc possibleOffsets(iblock: IndexBlock, M: int): tuple[min, max, numPossible: int] =
-  let N = iblock.len
+proc possibleOffsets*(isel: IndexSelection, M: int): tuple[min, max, numPossible: int] =
+  let N = isel.len
   let numPossible = N - M + 1
   (0, numPossible-1, numPossible)
 
 
-proc selectBlock(iblock: var IndexBlock, M: int, offset: int) =
-  let possibleOffsets = iblock.possibleOffsets(M)
+proc reset*(isel: var IndexSelection, default = false) =
+  for i, x in isel:
+    isel[i] = true
+
+proc selectBlock*(isel: var IndexSelection, M: int, offset: int) =
+  let possibleOffsets = isel.possibleOffsets(M)
   assert(offset >= possibleOffsets.min and offset <= possibleOffsets.max)
-  for i in iblock.indices:
-    iblock[i] = if i >= offset and i < offset+M: true else: false
+  for i in isel.indices:
+    isel[i] = if i >= offset and i < offset+M: true else: false
 
-proc selectRandomBlock(iblock: var IndexBlock, M: int) =
-  let possibleOffsets = iblock.possibleOffsets(M)
+proc selectRandomBlock*(isel: var IndexSelection, M: int) =
+  let possibleOffsets = isel.possibleOffsets(M)
   let offset = random(possibleOffsets.max+1)
-  iblock.selectBlock(M, offset)
-  
+  isel.selectBlock(M, offset)
 
-runUnitTest("IndexBlock.possibleOffsets"):
-  let s = newIndexBlock(3)
+
+
+proc newIndexSelection*(N: int, default = false): IndexSelection =
+  result = newSeq[bool](N)
+  if default == true:
+    result.reset(true)
+    
+
+runUnitTest("IndexSelection.possibleOffsets"):
+  let s = newIndexSelection(3)
   assert(s.size == 0)
   assert(s.possibleOffsets(1).numPossible == 3)
   assert(s.possibleOffsets(1).min == 0)
@@ -62,8 +67,8 @@ runUnitTest("IndexBlock.possibleOffsets"):
   assert(s.possibleOffsets(3).min == 0)
   assert(s.possibleOffsets(3).max == 0)
 
-runUnitTest("IndexBlock.selectBlock"):
-  var s = newIndexBlock(10)
+runUnitTest("IndexSelection.selectBlock"):
+  var s = newIndexSelection(10)
   s.selectBlock(2, 5)
   assert(s.size == 2)
   s.selectBlock(3, 0)
@@ -71,12 +76,12 @@ runUnitTest("IndexBlock.selectBlock"):
   s.selectBlock(4, 6)
   assert(s.size == 4)
 
-runUnitTest("IndexBlock.selectRandomBlock"):
+runUnitTest("IndexSelection.selectRandomBlock"):
   for N in 2..10:
     for M in 1..N:
       var counts = initCountTable[int]()
       for iteration in 0..<100:
-        var s = newIndexBlock(N)
+        var s = newIndexSelection(N)
         s.selectRandomBlock(M)
         for i, b in s:
           if b:
