@@ -11,9 +11,9 @@ when true:
 
   let preproData = ds.generatePreprocessingData()
 
-  let params = initParameters(numIterations = 1000, alpha = 0.01)
+  let params = initParameters(numIterations = 100, alpha = 0.05)
 
-  let statTest = initKSTest(ds, preproData)
+  let statTest = initKSTest(ds, preproData, (params.alpha * ds.nrows).toInt)
 
   let contrast = computeContrast([0,1].toSubspace, ds, preproData, params, statTest)
 

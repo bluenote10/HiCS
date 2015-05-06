@@ -7,12 +7,29 @@ import hics
 type
   KSTest* = object
     N: int
+    M: int
     preproData: PreproData
 
 
-proc initKSTest*(ds: Dataset, preproData: PreproData): KSTest =
+proc initKSTest*(
+    ds: Dataset,
+    preproData: PreproData,
+    expectedSampleSize: int,
+    applyCalibration = true,
+    calibrationIters = 100
+  ): KSTest =
+  let N = ds.nrows
+  let M = expectedSampleSize
+  assert(M > 0, "expectedSampleSize must be larger than zero.")
+  assert(M < N, "expectedSampleSize must be smaller than the total sample size.")
   # TODO: preproData.fitsTo(ds)
-  KSTest(N: ds.nrows, preproData: preproData)
+  
+  proc determineMinDeviation() =
+    discard
+  
+  KSTest(N: N, M: M, preproData: preproData)
+
+
 
 
 proc computeDeviation*(ks: KSTest, ds: Dataset, cmpAttr: int, selection: IndexSelection): float =

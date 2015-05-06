@@ -24,6 +24,9 @@ macro debug*(n: varargs[expr]): stmt =
   add(result, newCall("writeln", newIdentNode("stdout"), newStrLitNode("")))
 
 
+proc `*`*(x: float, y: int): float = x * y.toFloat
+proc `*`*(x: int, y: float): float = x.toFloat * y
+
 template runUnitTest*(name: string, code: stmt): stmt {.immediate.} =
   when defined(testing):
     echo "Running Test: ", name
