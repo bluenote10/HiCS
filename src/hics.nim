@@ -81,7 +81,7 @@ proc computeContrast*[T](subspace: Subspace, ds: Dataset, preproData: PreproData
     totalDev += deviation
 
     let numRemainingObjects = iselAll.size
-    debug iter, cmpAttr, deviation, numRemainingObjects
+    #debug iter, cmpAttr, deviation, numRemainingObjects
 
   return totalDev / params.numIterations.toFloat
 

@@ -26,6 +26,9 @@ macro debug*(n: varargs[expr]): stmt =
 
 proc `*`*(x: float, y: int): float = x * y.toFloat
 proc `*`*(x: int, y: float): float = x.toFloat * y
+proc `/`*(x: float, y: int): float = x / y.toFloat
+proc `/`*(x: int, y: float): float = x.toFloat / y
+
 
 template runUnitTest*(name: string, code: stmt): stmt {.immediate.} =
   when defined(testing):

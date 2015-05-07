@@ -21,6 +21,14 @@ when true:
 
 else:
   #import sequtils except toSeq
-  import math
-  var x = random(42).float
+  template testTemplate(b: bool): stmt =
+    when b:
+      var a = "hi"
+    else:
+      var a = 5
+    echo a
+    
+  testTemplate(false)
+  testTemplate(true)
+  testTemplate(false)
   
