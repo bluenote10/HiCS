@@ -94,7 +94,6 @@ proc selectRandomly*(isel: var IndexSelection, M: int) =
       m += 1
 
 
-
 proc newIndexSelection*(N: int, default = false): IndexSelection =
   result = newSeq[bool](N)
   if default == true:
@@ -143,11 +142,12 @@ runUnitTest("IndexSelection.selectRandomly"):
   let iterations = 1000
   var probs = newSeq[float](N)
   for iter in 0..<iterations:
-    var s = newIndexSelection(10)
-    s.selectRandomly(5)
+    var s = newIndexSelection(N)
+    s.selectRandomly(M)
     for i, b in s:
       if b:
         probs[i] += 1
   for i, p in probs:
     probs[i] /= iterations.toFloat
   
+

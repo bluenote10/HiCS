@@ -2,12 +2,16 @@
 when true:
   import utils
   import dataset
+  import preprocessing
+  import testdata
   import hics
   import slicing
   import subspace
   import stattest as module_stattest
 
-  let ds = loadDataset("/tmp/data.csv")
+  
+  #let ds = loadDataset("/tmp/data.csv")
+  let ds = testData2DLinear(1000)
 
   let preproData = ds.generatePreprocessingData()
 

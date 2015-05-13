@@ -4,15 +4,16 @@ import os, parsecsv, streams, future, strutils
 import sequtils
 import subspace
 import utils
-
+import future
+import sets
 
 type
   Vector* = seq[float] # not nil
 
   Dataset* = object
-    data: seq[Vector] not nil
+    data: seq[Vector] # not nil
 
-proc newDataset(): Dataset =
+proc newDataset*(): Dataset =
   Dataset(data: @[])
 
 proc nrows*(ds: Dataset): int =
@@ -31,6 +32,8 @@ template rowIndices*(ds: Dataset): expr = 0 .. <ds.nrows
 
 proc `[]`*(ds: Dataset, i: int, j: int): float = ds.data[i][j]
 
+proc `$`*(ds: Dataset): string = "Dataset(" & $ds.nrows & "x"& $ds.ncols & ")"
+
 proc getRow*(ds: Dataset, i: int): Vector =
   result = newSeq[float](ds.ncols)
   for j in ds.colIndices:
@@ -48,12 +51,36 @@ proc isValidSubspace*(ds: Dataset, s: Subspace): bool =
   result = min >= 0 and max < ds.ncols
 
 proc appendRow*(ds: var Dataset, row: Vector) =
-  if ds.data.len == 0:
-    ds.data.add(row)
-  else:
+  if ds.data.len != 0:
     assert(ds.ncols == row.len)
-    ds.data.add(row)
-    
+  ds.data.add(row)
+
+proc appendCol*(ds: var Dataset, col: Vector) =
+  if ds.data.len != 0:
+    assert(ds.nrows == col.len)
+  else:
+    ds.data = newSeq[seq[float]](col.len)
+    for i in 0 ..< col.len:
+      ds.data[i] = @[]
+  for i in ds.rowIndices:
+    ds.data[i].add(col[i])
+
+
+proc rbind*(datasets: varargs[Dataset]): Dataset =
+  let ncolsAll = datasets.map((d: Dataset) => d.ncols).toSet
+  assert(ncolsAll.len == 1)
+  result = newDataset()
+  for ds in datasets:
+    for row in ds.rowIndices:
+      result.appendRow(ds.getRow(row))
+
+proc cbind*(datasets: varargs[Dataset]): Dataset =
+  let nrowsAll = datasets.map((d: Dataset) => d.nrows).toSet
+  assert(nrowsAll.len == 1)
+  result = newDataset()
+  for ds in datasets:
+    for col in ds.colIndices:
+      result.appendCol(ds.getCol(col))
 
 
 

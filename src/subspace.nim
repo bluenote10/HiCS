@@ -4,6 +4,7 @@ import tables
 import hashes
 import sequtils
 import utils
+import math
 
 type
   Subspace* = HashSet[int]
@@ -28,12 +29,38 @@ proc toSubspace*(s: Slice[int]): Subspace =
 proc asSeq*(s: Subspace): seq[int] =
   result = sequtils.toSeq(items(s))
 
-iterator lowDimProjections(s: Subspace): Subspace =
+proc randomDim*(s: Subspace): int {.inline.} =
+  let randomI = random(s.len)
+  var i = 0
+  for x in s:
+    if i == randomI:
+      return x
+    i.inc
+  assert(false, "randomDim should always return")
+
+
+
+iterator lowDimProjections*(s: Subspace): Subspace =
   for dim in s:
     var space = s
     space.excl(dim)
     yield space
 
+
+proc generate2DSubspaces*(D: int): SubspaceSet =
+  result = initSet[Subspace]()
+  ijForLoop(D):
+    let subspace = [i,j].toSubspace
+    result.incl(subspace)
+
+
+runUnitTest("generate2DSubspaces"):
+  assert generate2DSubspaces(1).len == 0
+  assert generate2DSubspaces(2).len == 1
+  assert generate2DSubspaces(3).len == 3
+  assert generate2DSubspaces(4).len == 6
+  assert generate2DSubspaces(5).len == 10
+  assert generate2DSubspaces(6).len == 15
 
 
 proc aprioriMerge*(subspaces: SubspaceSet): SubspaceSet =
