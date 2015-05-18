@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#file=slicing.nim
-#file=backgroundjob.nim
-file=src/main.nim
+#file=src/slicing.nim
+file=src/heap.nim
+#file=src/main.nim
 
 fileAbs=`readlink -m $file`
 traceback=false
