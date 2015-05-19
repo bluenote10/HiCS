@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #file=src/slicing.nim
-file=src/heap.nim
+#file=src/heap.nim
+file=src/topk.nim
 #file=src/main.nim
 
 fileAbs=`readlink -m $file`
