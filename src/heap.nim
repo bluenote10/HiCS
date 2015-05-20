@@ -11,9 +11,9 @@ type
   # CompareProc[T] = proc (x: T, y: T): int 
 
   Heap*[T] = object
-    data: seq[T]
-    size: int
-    cmp: proc (x: T, y: T): int # CompareProc[T], why int not byte?
+    data*: seq[T]
+    size*: int
+    cmp*: proc (x: T, y: T): int # CompareProc[T], why int not byte?
 
   EmptyHeapError* = object of Exception
 
@@ -92,9 +92,14 @@ proc siftdown[T](h: var Heap[T], i: int) =
 
 
 
-proc newHeap*[T](cmp: proc (x: T, y: T): int = system.cmp): Heap[T] =
+proc newHeap*[T](cmp: proc (x: T, y: T): int {.closure.} = system.cmp): Heap[T] =
   ## constructs an empty heap using an explicit comparator.
   Heap[T](data: newSeq[T](), size: 0, cmp: cmp)
+
+proc newTupleHeap*[K,V](cmp: proc (x: K, y: K): int {.closure.} = system.cmp): Heap[tuple[k: K,v: V]] =
+  ## constructs an empty heap using an explicit comparator.
+  proc tupleKeyCmp[K,V](x: tuple[k: K,v: V], y: tuple[k: K,v: V]): int = system.cmp(x.k, y.k)
+  Heap[tuple[k: K,v: V]](data: newSeq[tuple[k: K,v: V]](), size: 0, cmp: tupleKeyCmp)
 
 
 proc newHeapFromArray*[T](arr: openarray[T], cmp: proc (x: T, y: T): int = system.cmp): Heap[T] =
