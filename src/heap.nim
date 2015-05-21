@@ -11,9 +11,9 @@ type
   # CompareProc[T] = proc (x: T, y: T): int 
 
   Heap*[T] = object
-    data*: seq[T]
-    size*: int
-    cmp*: proc (x: T, y: T): int # CompareProc[T], why int not byte?
+    data: seq[T]
+    size: int
+    comp: proc (x: T, y: T): int # CompareProc[T], why int not byte?
 
   EmptyHeapError* = object of Exception
 
@@ -46,7 +46,7 @@ proc indicesWithChildren*[T](h: Heap[T]): Slice[int] {.inline.} =
 
 proc propFulfilled[T](h: Heap[T], indParent, indChild: int): bool {.inline.} =
   ## checks the heap property between a given parent/child pair.
-  h.cmp(h.data[indParent], h.data[indChild]) <= 0
+  h.comp(h.data[indParent], h.data[indChild]) <= 0
 
 
 
@@ -92,22 +92,22 @@ proc siftdown[T](h: var Heap[T], i: int) =
 
 
 
-proc newHeap*[T](cmp: proc (x: T, y: T): int {.closure.} = system.cmp): Heap[T] =
+proc newHeap*[T](comparator: proc (x: T, y: T): int): Heap[T] =
   ## constructs an empty heap using an explicit comparator.
-  Heap[T](data: newSeq[T](), size: 0, cmp: cmp)
+  Heap[T](data: newSeq[T](), size: 0, comp: comparator)
 
-proc newTupleHeap*[K,V](cmp: proc (x: K, y: K): int {.closure.} = system.cmp): Heap[tuple[k: K,v: V]] =
-  ## constructs an empty heap using an explicit comparator.
-  proc tupleKeyCmp[K,V](x: tuple[k: K,v: V], y: tuple[k: K,v: V]): int = system.cmp(x.k, y.k)
-  Heap[tuple[k: K,v: V]](data: newSeq[tuple[k: K,v: V]](), size: 0, cmp: tupleKeyCmp)
+#proc newTupleHeap*[K,V](cmp: proc (x: K, y: K): int {.closure.} = system.cmp): Heap[tuple[k: K,v: V]] =
+#  ## constructs an empty heap using an explicit comparator.
+#  proc tupleKeyCmp[K,V](x: tuple[k: K,v: V], y: tuple[k: K,v: V]): int = system.cmp(x.k, y.k)
+#  Heap[tuple[k: K,v: V]](data: newSeq[tuple[k: K,v: V]](), size: 0, cmp: tupleKeyCmp)
 
 
-proc newHeapFromArray*[T](arr: openarray[T], cmp: proc (x: T, y: T): int = system.cmp): Heap[T] =
+proc newHeapFromArray*[T](arr: openarray[T], comparator: proc (x: T, y: T): int = system.cmp): Heap[T] =
   ## constructs a heap from a given openarray. This performs
   ## the famous heapify algorithm with a complexity of O(N).
 
   # in order to convert from openarray to seq, we fill manually
-  var h = Heap[T](data: newSeq[T](arr.len), size: arr.len, cmp: cmp)
+  var h = Heap[T](data: newSeq[T](arr.len), size: arr.len, comp: comparator)
   for i, x in arr:
     h.data[i] = x
   let indicesWithChildren = h.indicesWithChildren
@@ -162,7 +162,7 @@ proc pushPop*[T](h: var Heap[T], x: T): (bool, T) =
   ## the value that has been popped.
   if h.size == 0:
     return (false, x)
-  elif h.cmp(x, h.data[0]) <= 0: # cannot call propFulfilled, since x has no index yet
+  elif h.comp(x, h.data[0]) <= 0: # cannot call propFulfilled, since x has no index yet
     return (false, x)
   else:
     # x will not end up as new root, but is actually stored
@@ -208,11 +208,11 @@ iterator sortedItems*[T](h: Heap[T]): T =
 
 
 proc checkHeapProperty[T](h: Heap[T]): bool =
-  ## only for debugging: explicit check of the heap property
+  ## only for debugging: explicit check if the heap property
   ## is fulfilled for all nodes
   for i in h.indicesWithChildren:
     # note: we only know that i has a left child
-    # the right child is optional and required check
+    # the right child is optional and requires a check
     let j = childLInd(i)
     let k = childRInd(i)
     #echo i, j, k

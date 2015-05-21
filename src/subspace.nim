@@ -5,6 +5,7 @@ import hashes
 import sequtils
 import utils
 import math
+import algorithm
 
 type
   Subspace* = HashSet[int]
@@ -26,8 +27,17 @@ proc toSubspace*(s: Slice[int]): Subspace =
   for dim in s.a .. s.b:
     result.incl(dim)
 
+proc dimensionality*(s: Subspace): int =
+  s.len
+
 proc asSeq*(s: Subspace): seq[int] =
+  ## ensures dimensions are ordered
   result = sequtils.toSeq(items(s))
+  result.sort(system.cmp)
+
+proc `$`*(s: Subspace): string =
+  let sortedStr = $s.asSeq
+  sortedStr[1..^1] # drop the @
 
 proc randomDim*(s: Subspace): int {.inline.} =
   let randomI = random(s.len)
@@ -46,6 +56,9 @@ iterator lowDimProjections*(s: Subspace): Subspace =
     space.excl(dim)
     yield space
 
+
+proc newSubspaceSet*(): SubspaceSet =
+  result = initSet[Subspace]()
 
 proc generate2DSubspaces*(D: int): SubspaceSet =
   result = initSet[Subspace]()

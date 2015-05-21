@@ -8,20 +8,30 @@ import utils
 import math
 import future
 import sets
+import topk
 
 type
   IndexMap = seq[int] # not nil
-  
 
   Parameters* = object
     numIterations*: int
     alpha*: float
+    numCandidates*: int
+    maxOutputSpaces*: int
   
 
-proc initParameters*(numIterations: int = 100, alpha: float = 0.1): Parameters =
-  Parameters(numIterations: numIterations, alpha: alpha)
-
-
+proc initParameters*(
+    numIterations = 100,
+    alpha = 0.1,
+    numCandidates = 500,
+    maxOutputSpaces = 1000,
+  ): Parameters =
+  Parameters(
+    numIterations: numIterations,
+    alpha: alpha,
+    numCandidates: numCandidates,
+    maxOutputSpaces: maxOutputSpaces
+  )
 
 
 
@@ -79,11 +89,39 @@ proc hicsFramework*(ds: Dataset, params: Parameters) =
   let preproData = ds.generatePreprocessingData()
   let statTest = initKSTest(ds, preproData, (params.alpha * N).toInt)
 
-  var subspaces = generate2DSubspaces(D)
+  var outputSpaces = newTupleStoreTopK[float,Subspace](params.maxOutputSpaces, keepLarge=true)
 
-  for s in subspaces:
-    let contrast = computeContrast(s, ds, preproData, params, statTest)
-    debug s, contrast
+  # variables representing the current state
+  var d = 2
+  var spaces = generate2DSubspaces(D)
 
+  while spaces.len > 0:
+    echo "\n *** processing subspaces of dim ", d
 
+    # initialize the limited store of subspaces used for apriori merging
+    var spacesForAprioriMerge = newTupleStoreTopK[float,Subspace](params.numCandidates, keepLarge=true)
 
+    # iterate over current spaces, determine their contrast,
+    # and add them to the apriori-merge-spaces and the output-spaces.
+    for s in spaces:
+      let contrast = computeContrast(s, ds, preproData, params, statTest)
+      debug s, contrast
+      spacesForAprioriMerge.add((contrast, s))
+      outputSpaces.add((contrast, s))
+
+    # for the apriori merge we have to convert spacesForAprioriMerge
+    # from StoreTopK (i.e. a heap) into a SubspaceSet (a set)
+    var candidateSet = newSubspaceSet()
+    for contrast, subspace in spacesForAprioriMerge.items:
+      candidateSet.incl(subspace)
+    assert candidateSet.len == spacesForAprioriMerge.size
+
+    # replace the current spaces by the result of an apriori merge of the candidates
+    spaces = candidateSet.aprioriMerge
+    for s in spaces:
+      assert s.dimensionality == d+1
+
+    inc d
+
+  for contrast, subspace in outputSpaces.sortedItems:
+    echo contrast, subspace

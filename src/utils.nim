@@ -1,5 +1,6 @@
 
 import macros
+import sequtils
 #import tables
 
 macro debug*(n: varargs[expr]): stmt =
@@ -37,6 +38,20 @@ template runUnitTest*(name: string, code: stmt): stmt {.immediate.} =
       code
 
 template indices*(expr): expr = low(expr) .. high(expr)
+
+when false:
+  proc reverse*[T](iter: iterator: T): iterator (): T =
+    var data = newSeq[T]()
+    for x in iter():
+      data.add x
+    iterator rev(): T =
+      for x in data:
+        yield x
+
+proc reverse*[T](s: seq[T]): seq[T] =
+  result = newSeq[T](s.len)
+  for i,x in s:
+    result[^(i+1)] = x
 
 
 proc zipWithIndex*[T](s: seq[T]): seq[tuple[index: int, value: T]] =

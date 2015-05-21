@@ -4,8 +4,8 @@
 #file=src/heap.nim
 #file=src/topk.nim
 #file=src/option.nim
-#file=src/main.nim
-file=src/test.nim
+#file=src/test.nim
+file=src/main.nim
 
 fileAbs=`readlink -m $file`
 traceback=false
