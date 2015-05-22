@@ -43,18 +43,20 @@ proc testDataHighDim(N, D, maxSubspaceDim: int, generator: proc (d: int): Datase
 
 
 
-runUnitTest("HighDimTest"):
+UnitTests("testdata"):
 
-  randomize(0)
-  let N = 1000
-  proc gen(d: int): Dataset = generatorMultivariateLinear(N, d)
+  test("generatorMultivariateLinear"):
 
-  let (data, subspaces) = testDataHighDim(N, 5, 3, gen)
-  debug data, subspaces
+    randomize(0)
+    let N = 1000
+    proc gen(d: int): Dataset = generatorMultivariateLinear(N, d)
 
-  let params = initParameters(100, 0.1)
+    let (data, subspaces) = testDataHighDim(N, 5, 3, gen)
+    debug data, subspaces
 
-  hicsFramework(data, params)
+    let params = initParameters(100, 0.1)
+
+    let result = hicsFramework(data, params)
 
   
 

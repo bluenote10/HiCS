@@ -13,11 +13,21 @@ type
 
 
 proc hash*(s: Subspace): THash =
-  var h: THash = 0
-  for xAtom in s:
-    h = h !& xAtom
-  result = !$h
+  echo "chalculating hash for ", s
+  for it in items(s):
+    echo "   hash item is ", it
+    #result = result !& hash(it)
+    result = result +% hash(it)
+  result = !$result
 
+echo (1000.hash !& 10000000.hash)
+echo (10000000.hash !& 1000.hash)
+
+echo ((1.hash !& 2.hash) !& 3.hash)
+echo (1.hash !& (2.hash !& 3.hash))
+
+echo hash([1,2,3])
+echo hash([3,2,1])
 
 proc toSubspace*(s: openarray[int]): Subspace =
   s.toSet
@@ -67,13 +77,6 @@ proc generate2DSubspaces*(D: int): SubspaceSet =
     result.incl(subspace)
 
 
-runUnitTest("generate2DSubspaces"):
-  assert generate2DSubspaces(1).len == 0
-  assert generate2DSubspaces(2).len == 1
-  assert generate2DSubspaces(3).len == 3
-  assert generate2DSubspaces(4).len == 6
-  assert generate2DSubspaces(5).len == 10
-  assert generate2DSubspaces(6).len == 15
 
 
 proc aprioriMerge*(subspaces: SubspaceSet): SubspaceSet =
@@ -126,21 +129,73 @@ proc aprioriMerge*(subspaces: SubspaceSet): SubspaceSet =
   return validCandidates.toSet
 
 
-runUnitTest("aprioriMerge"):
-  let s1 = [1,2,3].toSubspace
-  let s2 = [1,2,4].toSubspace
-  let s3 = [2,3,4].toSubspace
-  let s4 = [1,3,4].toSubspace
-  discard aprioriMerge([s1,s2,s3,s4].toSet)
 
-  for N in 2..5:
-    let base = (1..N).toSubspace
-    var subspaces = initSet[Subspace]()
-    for s in base.lowDimProjections:
-      subspaces.incl(s)
-    #debug subspaces
-    let merged = aprioriMerge(subspaces)
-    assert(merged.len == 1)
+UnitTests("aprioriMerge"):
+
+  test("generate2DSubspaces"):
+    check generate2DSubspaces(1).len == 0
+    check generate2DSubspaces(2).len == 1
+    check generate2DSubspaces(3).len == 3
+    check generate2DSubspaces(4).len == 6
+    check generate2DSubspaces(5).len == 10
+    check generate2DSubspaces(6).len == 15
+
+  test("order independence of hash function"):
+    var s1 = [].toSubspace
+    var s2 = [].toSubspace
+    s1.incl(0); s1.incl(1); s1.incl(2); s1.incl(3); s1.incl(4)
+    s2.incl(0); s2.incl(1); s2.incl(2); s2.incl(4); s2.incl(3)
+    check s1.hash == s2.hash
+    #quit 0
+
+  test("4-dim test"):
+    let s1 = [1,2,3].toSubspace
+    let s2 = [1,2,4].toSubspace
+    let s3 = [2,3,4].toSubspace
+    let s4 = [1,3,4].toSubspace
+    let res = aprioriMerge([s1,s2,s3,s4].toSet)
+    check res.len == 1
+    check ([1,2,3,4].toSubspace in res)
+
+  test("within test"):
+    let s = [0,1,2,3,4].toSubspace
+    let setOfS = [s].toSet
+    debug s, setOfS, s in setOfS
+  
+  test("5-dim test"):
+    let s = [4,0,1,2,4,3].toSubspace
+    let setOfS = [s].toSet
+    debug s, setOfS, s in setOfS
+    check s in setOfS
+
+    let s1 = [0, 1, 3, 4].toSubspace
+    let s2 = [0, 2, 3, 4].toSubspace
+    let s3 = [0, 1, 2, 3].toSubspace
+    let s4 = [1, 2, 3, 4].toSubspace
+    let s5 = [0, 1, 2, 4].toSubspace 
+    let res = aprioriMerge([s1,s2,s3,s4,s5].toSet)
+    check res.len == 1
+    let ss = [0,1,2,3,4].toSubspace
+    debug res, [0,1,2,3,4].toSubspace, [0,1,2,3,4].toSubspace in res
+    debug res, ss, ss in res
+    debug ss == s
+    debug setOfS == res
+    debug res.repr, [0,1,2,3,4].toSubspace.repr
+    #check ([0,1,2,3,4].toSubspace in res)
+    check contains(res, ([0,1,2,3,4].toSubspace))
+    for s in res:
+      debug s, s == [0,1,2,3,4].toSubspace
+  quit 0
+
+  test("created from lower dims"):
+    for N in 2..5:
+      let base = (1..N).toSubspace
+      var subspaces = initSet[Subspace]()
+      for s in base.lowDimProjections:
+        subspaces.incl(s)
+      #debug subspaces
+      let merged = aprioriMerge(subspaces)
+      check merged.len == 1
     
   block:
     let N = 5

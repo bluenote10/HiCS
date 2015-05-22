@@ -46,7 +46,7 @@ proc computeContrast*[T](subspace: Subspace, ds: Dataset, preproData: PreproData
   let N = ds.nrows
   let M = (pow(params.alpha, 1 / (D-1)) * N.toFloat).toInt
 
-  debug D, N, M
+  #debug D, N, M
 
   var iselAll = newIndexSelection(N)
   var iselCur = newIndexSelection(N)
@@ -81,7 +81,7 @@ proc computeContrast*[T](subspace: Subspace, ds: Dataset, preproData: PreproData
 
 
 
-proc hicsFramework*(ds: Dataset, params: Parameters) =
+proc hicsFramework*(ds: Dataset, params: Parameters): StoreTopK[(float, Subspace)] =
 
   let N = ds.nrows
   let D = ds.ncols
@@ -96,7 +96,7 @@ proc hicsFramework*(ds: Dataset, params: Parameters) =
   var spaces = generate2DSubspaces(D)
 
   while spaces.len > 0:
-    echo "\n *** processing subspaces of dim ", d
+    echo ifmt" * processing subspaces of dim $d [number of spaces: ${spaces.len}]"
 
     # initialize the limited store of subspaces used for apriori merging
     var spacesForAprioriMerge = newTupleStoreTopK[float,Subspace](params.numCandidates, keepLarge=true)
@@ -120,8 +120,11 @@ proc hicsFramework*(ds: Dataset, params: Parameters) =
     spaces = candidateSet.aprioriMerge
     for s in spaces:
       assert s.dimensionality == d+1
+    debug spaces
 
     inc d
 
-  for contrast, subspace in outputSpaces.sortedItems:
-    echo contrast, subspace
+  #for contrast, subspace in outputSpaces.sortedItems:
+  #  echo contrast, subspace
+
+  result = outputSpaces

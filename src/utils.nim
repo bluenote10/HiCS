@@ -1,6 +1,9 @@
 
 import macros
 import sequtils
+import stringinterpolation
+
+export ifmt, format, formatUnsafe
 #import tables
 
 macro debug*(n: varargs[expr]): stmt =
@@ -36,6 +39,13 @@ template runUnitTest*(name: string, code: stmt): stmt {.immediate.} =
     echo "Running Test: ", name
     block:
       code
+
+template UnitTests*(name: string, code: stmt): stmt {.immediate.} =
+  when defined(testing):
+    import unittest
+    suite(name):
+      code
+
 
 template indices*(expr): expr = low(expr) .. high(expr)
 
