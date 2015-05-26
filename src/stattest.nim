@@ -69,7 +69,8 @@ proc initKSTest*(
     preproData: PreproData,
     expectedSampleSize: int,
     applyCalibration = true,
-    calibrationIterations = 100
+    calibrationIterations = 100,
+    verbose = false
   ): KSTest =
   let N = ds.nrows
   let M = expectedSampleSize
@@ -80,7 +81,8 @@ proc initKSTest*(
   let expectedMinDev = determineExpectedMinDeviation(N, M, calibrationIterations)
   let expectedMaxDev = determineExpectedMaxDeviation(N, M)
 
-  debug expectedMinDev, expectedMaxDev
+  if verbose:
+    echo ifmt"KS expectations:    min value = $expectedMinDev    max value = $expectedMaxDev"
   
   KSTest(N: N, M: M,
          preproData: preproData,

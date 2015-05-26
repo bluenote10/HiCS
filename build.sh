@@ -10,14 +10,14 @@ file=src/main.nim
 fileAbs=`readlink -m $file`
 traceback=false
 
-nim c -o:../bin/main --parallelBuild:1 -d:testing $file
+nim c -o:../bin/HiCS --parallelBuild:1 -d:testing $file
 
 compiler_exit=$?
 
 echo "Compiler exit: $compiler_exit"
 
 if [ "$compiler_exit" -eq 0 ]; then  # compile success
-  ./bin/main
+  ./bin/HiCS
   exit $?
 fi
 

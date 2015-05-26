@@ -52,11 +52,11 @@ UnitTests("testdata"):
     proc gen(d: int): Dataset = generatorMultivariateLinear(N, d)
 
     let (data, subspaces) = testDataHighDim(N, 5, 3, gen)
-    debug data, subspaces
+    # debug data, subspaces
 
-    let params = initParameters(100, 0.1)
+    let params = initParameters(100, 0.1, numCandidates=4)
 
-    let result = hicsFramework(data, params)
+    let result = hicsFramework(data, params, verbose=false)
 
   
 

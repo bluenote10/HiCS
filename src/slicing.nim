@@ -99,55 +99,56 @@ proc newIndexSelection*(N: int, default = false): IndexSelection =
   if default == true:
     result.reset(true)
     
+UnitTests("selection"):
 
-runUnitTest("IndexSelection.possibleOffsets"):
-  let s = newIndexSelection(3)
-  assert(s.size == 0)
-  assert(s.possibleOffsets(1).numPossible == 3)
-  assert(s.possibleOffsets(1).min == 0)
-  assert(s.possibleOffsets(1).max == 2)
-  assert(s.possibleOffsets(2).numPossible == 2)
-  assert(s.possibleOffsets(2).min == 0)
-  assert(s.possibleOffsets(2).max == 1)
-  assert(s.possibleOffsets(3).numPossible == 1)
-  assert(s.possibleOffsets(3).min == 0)
-  assert(s.possibleOffsets(3).max == 0)
+  test "IndexSelection.possibleOffsets":
+    let s = newIndexSelection(3)
+    assert(s.size == 0)
+    assert(s.possibleOffsets(1).numPossible == 3)
+    assert(s.possibleOffsets(1).min == 0)
+    assert(s.possibleOffsets(1).max == 2)
+    assert(s.possibleOffsets(2).numPossible == 2)
+    assert(s.possibleOffsets(2).min == 0)
+    assert(s.possibleOffsets(2).max == 1)
+    assert(s.possibleOffsets(3).numPossible == 1)
+    assert(s.possibleOffsets(3).min == 0)
+    assert(s.possibleOffsets(3).max == 0)
 
-runUnitTest("IndexSelection.selectBlock"):
-  var s = newIndexSelection(10)
-  s.selectBlock(2, 5)
-  assert(s.size == 2)
-  s.selectBlock(3, 0)
-  assert(s.size == 3)
-  s.selectBlock(4, 6)
-  assert(s.size == 4)
+  test "IndexSelection.selectBlock":
+    var s = newIndexSelection(10)
+    s.selectBlock(2, 5)
+    assert(s.size == 2)
+    s.selectBlock(3, 0)
+    assert(s.size == 3)
+    s.selectBlock(4, 6)
+    assert(s.size == 4)
 
-runUnitTest("IndexSelection.selectRandomBlock"):
-  for N in 2..10:
-    for M in 1..N:
-      var counts = initCountTable[int]()
-      for iteration in 0..<100:
-        var s = newIndexSelection(N)
-        s.selectRandomBlock(M)
-        for i, b in s:
-          if b:
-            counts.inc(i)
-        assert(s.size == M)
-      #debug N, M, counts
-        
-runUnitTest("IndexSelection.selectRandomly"):
-  randomize()
-  let N = 3
-  let M = 2
-  let iterations = 1000
-  var probs = newSeq[float](N)
-  for iter in 0..<iterations:
-    var s = newIndexSelection(N)
-    s.selectRandomly(M)
-    for i, b in s:
-      if b:
-        probs[i] += 1
-  for i, p in probs:
-    probs[i] /= iterations.toFloat
-  
+  test "IndexSelection.selectRandomBlock":
+    for N in 2..10:
+      for M in 1..N:
+        var counts = initCountTable[int]()
+        for iteration in 0..<100:
+          var s = newIndexSelection(N)
+          s.selectRandomBlock(M)
+          for i, b in s:
+            if b:
+              counts.inc(i)
+          assert(s.size == M)
+        #debug N, M, counts
+
+  test "IndexSelection.selectRandomly":
+    randomize()
+    let N = 3
+    let M = 2
+    let iterations = 1000
+    var probs = newSeq[float](N)
+    for iter in 0..<iterations:
+      var s = newIndexSelection(N)
+      s.selectRandomly(M)
+      for i, b in s:
+        if b:
+          probs[i] += 1
+    for i, p in probs:
+      probs[i] /= iterations.toFloat
+
 

@@ -81,13 +81,13 @@ proc computeContrast*[T](subspace: Subspace, ds: Dataset, preproData: PreproData
 
 
 
-proc hicsFramework*(ds: Dataset, params: Parameters): StoreTopK[(float, Subspace)] =
+proc hicsFramework*(ds: Dataset, params: Parameters, verbose = false): StoreTopK[(float, Subspace)] =
 
   let N = ds.nrows
   let D = ds.ncols
 
   let preproData = ds.generatePreprocessingData()
-  let statTest = initKSTest(ds, preproData, (params.alpha * N).toInt)
+  let statTest = initKSTest(ds, preproData, (params.alpha * N).toInt, verbose)
 
   var outputSpaces = newTupleStoreTopK[float,Subspace](params.maxOutputSpaces, keepLarge=true)
 
@@ -96,7 +96,7 @@ proc hicsFramework*(ds: Dataset, params: Parameters): StoreTopK[(float, Subspace
   var spaces = generate2DSubspaces(D)
 
   while spaces.len > 0:
-    echo ifmt" * processing subspaces of dim $d [number of spaces: ${spaces.len}]"
+    if verbose: echo ifmt" * processing subspaces of dim $d [number of spaces: ${spaces.len}]"
 
     # initialize the limited store of subspaces used for apriori merging
     var spacesForAprioriMerge = newTupleStoreTopK[float,Subspace](params.numCandidates, keepLarge=true)
@@ -105,7 +105,7 @@ proc hicsFramework*(ds: Dataset, params: Parameters): StoreTopK[(float, Subspace
     # and add them to the apriori-merge-spaces and the output-spaces.
     for s in spaces:
       let contrast = computeContrast(s, ds, preproData, params, statTest)
-      debug s, contrast
+      if verbose: debug s, contrast
       spacesForAprioriMerge.add((contrast, s))
       outputSpaces.add((contrast, s))
 
@@ -117,10 +117,16 @@ proc hicsFramework*(ds: Dataset, params: Parameters): StoreTopK[(float, Subspace
     assert candidateSet.len == spacesForAprioriMerge.size
 
     # replace the current spaces by the result of an apriori merge of the candidates
+    let oldNumSpaces = spaces.len
     spaces = candidateSet.aprioriMerge
     for s in spaces:
       assert s.dimensionality == d+1
-    debug spaces
+    if verbose:
+      let info = if oldNumSpaces <= params.numCandidates:
+          ifmt"using all spaces; number of $d-dim spaces: $oldNumSpaces <= numCandidates: ${params.numCandidates}"
+        else:
+          ifmt"number $d-dim spaces [$oldNumSpaces] exceeds numCandidates [${params.numCandidates}] => limiting to top ${params.numCandidates}]"
+      echo ifmt" => number of merged 3-dim spaces: ${spaces.len} ($info)"
 
     inc d
 

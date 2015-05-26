@@ -1,6 +1,8 @@
 
 import macros
 import sequtils
+import parseutils
+import math
 import stringinterpolation
 
 export ifmt, format, formatUnsafe
@@ -63,21 +65,20 @@ proc reverse*[T](s: seq[T]): seq[T] =
   for i,x in s:
     result[^(i+1)] = x
 
+proc shuffle*[T](a: openarray[T]): seq[T] =
+  let N = a.len
+  result = toSeq(a.items)
+  for i in countdown(N-1, 1):
+    let j = random(i+1)
+    let tmp = result[i]
+    result[i] = result[j]
+    result[j] = tmp
 
 proc zipWithIndex*[T](s: seq[T]): seq[tuple[index: int, value: T]] =
   result = newSeq[(int, T)](s.len)
   for i, x in s:
     result[i] = (i, x)
 
-runUnitTest("zipWithIndex"):
-  let s1 = @["a", "b", "c"]
-  let s2 = s1.zipWithIndex()
-  assert(s2[0].index == 0)
-  assert(s2[0].value == "a")
-  assert(s2[1].index == 1)
-  assert(s2[1].value == "b")
-  assert(s2[2].index == 2)
-  assert(s2[2].value == "c")
 
 
 
@@ -90,17 +91,37 @@ template ijForLoop*(N: int, s: stmt): stmt {.immediate.} =
       let j {.inject.} = jj
       s
 
-runUnitTest("ijForLoop"):
-  for N in 0 .. 10:
-    var c = 0
-    ijForLoop(N):
-      assert(i < j)
-      c += 1
-    assert(c == N*(N-1) div 2)
-
+proc parse*[T](s: string): tuple[okay: bool, value: T] =
+  ## semi-generic parsing, TODO: use Option[T]
+  when T is int:
+    var x: int
+    if parseInt(s, x) > 0:
+      return (true, x)
+    else:
+      return (false, 0)
 
 proc sortBy*[T,S](accessor: proc (x: T): S): proc (a: T, b: T): int =
   result = proc (a: T, b: T): int =
     system.cmp(accessor(a), accessor(b))
 
+
+
+UnitTests("utils"):
+  test "zipWithIndex":
+    let s1 = @["a", "b", "c"]
+    let s2 = s1.zipWithIndex()
+    assert(s2[0].index == 0)
+    assert(s2[0].value == "a")
+    assert(s2[1].index == 1)
+    assert(s2[1].value == "b")
+    assert(s2[2].index == 2)
+    assert(s2[2].value == "c")
+
+  test "ijForLoop":
+    for N in 0 .. 10:
+      var c = 0
+      ijForLoop(N):
+        assert(i < j)
+        c += 1
+      assert(c == N*(N-1) div 2)
 

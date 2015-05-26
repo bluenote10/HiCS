@@ -20,8 +20,7 @@ proc generatePreprocessingData*(ds: Dataset): PreproData =
     #sort(col, sortBy((x: tuple) => x[1]))
     #sort(col, sortBy[(int,float),float]((x) => x[1]))
 
-    debug j, col[0], col[^1]
-    #let sorted = 
+    #debug j, col[0], col[^1]
 
     indexMaps[j] = col.map((x: (int,float)) => x[0])
 
