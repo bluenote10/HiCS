@@ -10,6 +10,7 @@ import stattest as module_stattest
 import typetraits
 #import optionals
 
+
 when false:
   #let ds = loadDataset("/tmp/data.csv")
   let ds = testData2DLinear(1000)
@@ -79,5 +80,8 @@ if hasArg("-v", "--version"):
 let silent = hasArg("-s", "--silent")
 let hasHeader = hasArg("--hasHeader")
 
-let numRuns = pairExtractor("--numRuns", 100)
+let numRuns       = pairExtractor("--numRuns", 100)
+let numCandidates = pairExtractor("--numCandidates", 500)
+let alpha         = pairExtractor("--alpha", 0.1)
+
 debug numRuns
