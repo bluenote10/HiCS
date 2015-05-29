@@ -91,14 +91,6 @@ template ijForLoop*(N: int, s: stmt): stmt {.immediate.} =
       let j {.inject.} = jj
       s
 
-proc parse*[T](s: string): tuple[okay: bool, value: T] =
-  ## semi-generic parsing, TODO: use Option[T]
-  when T is int:
-    var x: int
-    if parseInt(s, x) > 0:
-      return (true, x)
-    else:
-      return (false, 0)
 
 proc sortBy*[T,S](accessor: proc (x: T): S): proc (a: T, b: T): int =
   result = proc (a: T, b: T): int =

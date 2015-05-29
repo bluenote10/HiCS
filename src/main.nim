@@ -1,4 +1,6 @@
 import os
+import parseutils
+import strutils
 import utils
 import dataset
 import preprocessing
@@ -20,8 +22,6 @@ when false:
   let contrast = computeContrast([0,1].toSubspace, ds, preproData, params, statTest)
   debug contrast
 
-let args = commandLineParams()
-debug args
 
 const
   version = "0.9.0"
@@ -39,33 +39,72 @@ Options:
   -s, --silent                    Disables debug output on stdout.
 """
 
+proc parse*[T](s: string): tuple[okay: bool, value: T] =
+  ## semi-generic parsing, TODO: use Option[T]
+  when T is int:
+    var x: int
+    if parseInt(s, x) > 0:
+      return (true, x)
+    else:
+      return (false, 0)
+  elif T is string:
+    return (true, s)
+  elif T is Subspace:
+    let fields = s.split(",")
+    debug fields
+    var s = [].toSubspace
+    for f in fields:
+      let (b,i) = parse[int](f)
+      if b: # should we check if dimensions are ok? 0 <= i < dimOfFile
+        s.incl(i)
+      else:
+        return (false, s)
+    return (true, s)
 
 
 proc echoUsage(andQuit: bool = true) =
   echo usage
   if andQuit:
     quit 0
-    
+
+
+# must be defined here, the following procs are closures...
+let args = commandLineParams()
+
 proc hasArg(checkEither: varargs[string]): bool =
   for s in checkEither:
     if s in args:
       return true
   return false
 
-
-proc pairExtractor[T](name: string, default: T): T =
-  for i in 0 .. args.len-2:
+proc pairExtractor[T](name: string): T =
+  for i in 0 ..< args.len:
     if args[i] == name:
+      if i == args.len-1:
+        quit ifmt"Error: The parameter '$name' must be followed by a value of type ${T.name}."
       let parse = parse[T](args[i+1])
       if parse.okay:
         return parse.value
       else:
-        quit ifmt"Value for parameter $name cannot be cast to ${T.name} (value given was: ${args[i+1]})"
-  #return default
+        quit ifmt"Error: Value for parameter '$name' cannot be cast to ${T.name} (value given was: '${args[i+1]}')."
+  quit ifmt"Error: The parameter '$name' was not specified but is mandatory."
+
+proc pairExtractor[T](name: string, default: T): T =
+  for i in 0 ..< args.len:
+    if args[i] == name:
+      if i == args.len-1:
+        quit ifmt"Error: The parameter '$name' must be followed by a value of type ${T.name}."
+      let parse = parse[T](args[i+1])
+      if parse.okay:
+        return parse.value
+      else:
+        quit ifmt"Error: Value for parameter '$name' cannot be cast to ${T.name} (value given was: '${args[i+1]}')."
+  return default
 
 
 # "Usage java -jar hics.jar [--numRuns <INT>] [--numCandidates <INT>] [--alpha <DOUBLE>] [--hasHeader] [--onlySubspsace <INT,INT,...>] [--csvOut <FILE>] --csvIn <FILE>")
 # "Note: The list of INTs must not contain whitespace and indexing starts at zero, i.e.: 0,3,12,51")
+
 
 
 if args.len == 0:
@@ -84,4 +123,39 @@ let numRuns       = pairExtractor("--numRuns", 100)
 let numCandidates = pairExtractor("--numCandidates", 500)
 let alpha         = pairExtractor("--alpha", 0.1)
 
-debug numRuns
+let fileI         = pairExtractor[string]("--csvIn")
+let fileO         = pairExtractor("--csvOut", "out.csv")
+
+let onlySubspace = pairExtractor("--onlySubspace", [].toSubspace)
+
+if not silent:
+  echo ifmt"Running with parameters:"
+  echo ifmt"  csvIn         = $fileI"
+  echo ifmt"  csvOut        = $fileO"
+  echo ifmt"  hasHeader     = $hasHeader"
+  echo ifmt"  numRuns       = $numRuns"
+  echo ifmt"  numCandidates = $numCandidates"
+  echo ifmt"  alpha         = $alpha"
+
+
+if onlySubspace.dimensionality == 0:
+  # regular mode:
+  let ds = loadDataset(fileI)
+  let params = initParameters(numIterations=numRuns, alpha=alpha, numCandidates=numCandidates)
+
+  let results = hicsFramework(ds, params)
+
+
+else:
+  let ds = loadDataset(fileI)
+  let params = initParameters(numIterations=numRuns, alpha=alpha, numCandidates=numCandidates)
+  
+  let preproData = ds.generatePreprocessingData()
+  let statTest = initKSTest(ds, preproData, (params.alpha * ds.nrows).toInt, verbose=not silent)
+  let contrast = computeContrast([0,1].toSubspace, ds, preproData, params, statTest)
+  
+  #echo ifmt"Runtime with preprocessing: ${(t3-t1).toDouble / 1000}%.3f"
+  #echo ifmt"Runtime contrast calculation only: ${(t3-t2).toDouble / 1000}%.3f"
+  echo ifmt"Contrast of subspace $onlySubspace"
+  echo contrast
+

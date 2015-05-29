@@ -91,7 +91,7 @@ proc loadDataset*(filename: string, hasHeader = false): Dataset =
   var s = newFileStream(filename, fmRead)
 
   if s == nil:
-    quit("Error -- cannot open the file: " & filename)
+    quit(ifmt"Error: Cannot open file '$filename'")
 
   var parser: CsvParser
   parser.open(s, filename, separator=';')

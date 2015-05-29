@@ -7,6 +7,9 @@ import utils
 import math
 import algorithm
 
+# to allow s.incl(i)
+export sets.incl
+
 type
   Subspace* = HashSet[int]
   SubspaceSet = HashSet[Subspace]
