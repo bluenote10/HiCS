@@ -5,4 +5,7 @@ This is an implementation of the HiCS algorithm presented in our [paper](http://
 
 _HiCS: High Contrast Subspaces for Density-Based Outlier Ranking._
 
-Note: This is not the implementation used in the original publication. This implementation is currently work-in-progress.
+Note: 
+This is not the implementation used in the original publication. 
+This implementation is currently work-in-progress.
+The implementation does not include the outlier detection component, i.e., it implements only the subspace search step.
