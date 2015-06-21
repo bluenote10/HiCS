@@ -2,7 +2,7 @@
 import utils
 import math
 
-when defined(testing):
+when defined(testHiCS):
   import tables
 
 #proc myNewSeq(N: int): var seq[bool] = newSeq[bool](N)

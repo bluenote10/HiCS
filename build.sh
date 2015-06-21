@@ -11,7 +11,7 @@ fileAbs=`readlink -m $file`
 traceback=false
 
 mkdir -p bin
-nim c -o:../bin/HiCS --parallelBuild:1 -d:testing $file
+nim c -o:../bin/HiCS --parallelBuild:1 -d:testHiCS $file
 
 compiler_exit=$?
 

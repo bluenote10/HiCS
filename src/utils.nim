@@ -37,13 +37,13 @@ proc `/`*(x: int, y: float): float = x.toFloat / y
 
 
 template runUnitTest*(name: string, code: stmt): stmt {.immediate.} =
-  when defined(testing):
+  when defined(testHiCS):
     echo "Running Test: ", name
     block:
       code
 
 template UnitTests*(name: string, code: stmt): stmt {.immediate.} =
-  when defined(testing):
+  when defined(testHiCS):
     import unittest
     suite(name):
       code
