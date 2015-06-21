@@ -62,7 +62,7 @@ proc computeContrast*[T](subspace: Subspace, ds: Dataset, preproData: PreproData
     for j in subspace:
       if j != cmpAttr:
         iselCur.selectRandomBlock(M)
-        assert(iselCur.size == M)
+        assert(iselCur.getM == M)
         # now convert from the rank-indices in dim j
         # to global object-indices and unselect them
         # if they are not part of the selection block
@@ -74,7 +74,7 @@ proc computeContrast*[T](subspace: Subspace, ds: Dataset, preproData: PreproData
     let deviation: float = statTest.computeDeviation(ds, cmpAttr, iselAll)
     totalDev += deviation
 
-    let numRemainingObjects = iselAll.size
+    let numRemainingObjects = iselAll.getM
     #debug iter, cmpAttr, deviation, numRemainingObjects
 
   return totalDev / params.numIterations.toFloat

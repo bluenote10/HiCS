@@ -25,7 +25,7 @@ proc computeDeviationFromSelfSelection(selection: IndexSelection): float =
   var maxDiscrepancy = -Inf
 
   let N = selection.len
-  let M = selection.size
+  let M = selection.getM
 
   for i in 0 ..< N:
 
@@ -93,7 +93,7 @@ proc initKSTest*(
 
 proc computeDeviation*(ks: KSTest, ds: Dataset, cmpAttr: int, selection: IndexSelection): float =
 
-  let numRemainingObjects = selection.size
+  let numRemainingObjects = selection.getM
   
   var cumulatedDistOrig = 0.0
   var cumulatedDistTest = 0.0

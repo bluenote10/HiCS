@@ -19,7 +19,18 @@ type
   IndexSelection* = seq[bool]
 
 
+discard """
 proc size*(isel: IndexSelection): int =
+  result = 0
+  for b in isel:
+    if b:
+      result += 1
+"""
+
+proc getN*(isel: IndexSelection): int =
+  isel.len
+
+proc getM*(isel: IndexSelection): int =
   result = 0
   for b in isel:
     if b:
@@ -103,7 +114,7 @@ UnitTests("selection"):
 
   test "IndexSelection.possibleOffsets":
     let s = newIndexSelection(3)
-    assert(s.size == 0)
+    assert(s.getM == 0)
     assert(s.possibleOffsets(1).numPossible == 3)
     assert(s.possibleOffsets(1).min == 0)
     assert(s.possibleOffsets(1).max == 2)
@@ -117,11 +128,11 @@ UnitTests("selection"):
   test "IndexSelection.selectBlock":
     var s = newIndexSelection(10)
     s.selectBlock(2, 5)
-    assert(s.size == 2)
+    assert(s.getM == 2)
     s.selectBlock(3, 0)
-    assert(s.size == 3)
+    assert(s.getM == 3)
     s.selectBlock(4, 6)
-    assert(s.size == 4)
+    assert(s.getM == 4)
 
   test "IndexSelection.selectRandomBlock":
     for N in 2..10:
@@ -133,7 +144,7 @@ UnitTests("selection"):
           for i, b in s:
             if b:
               counts.inc(i)
-          assert(s.size == M)
+          assert(s.getM == M)
         #debug N, M, counts
 
   test "IndexSelection.selectRandomly":
