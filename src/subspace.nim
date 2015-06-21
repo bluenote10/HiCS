@@ -15,7 +15,7 @@ type
   SubspaceSet = HashSet[Subspace]
 
 
-proc hash*(s: Subspace): THash =
+proc hash*(s: Subspace): Hash =
   #echo "chalculating hash for ", s
   for it in items(s):
     #echo "   hash item is ", it

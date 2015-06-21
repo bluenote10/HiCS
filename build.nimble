@@ -8,11 +8,11 @@ license       = "MIT"
 #bin=src/main.nim
 
 #bin=main
-#srcDir=src
+srcDir=src
 
 
 [Deps]
-#Requires: "nim >= 0.10.3, nim-stringinterpolation#HEAD"
+Requires: "nim >= 0.10.3, stringinterpolation, binaryheap"
 
 #Requires: "nim >= 0.10.3, nim-stringinterpolation#e0746e3e184185e2cf8309b14b1ca207f31f1d41"
 

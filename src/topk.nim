@@ -1,5 +1,5 @@
 
-import heap
+import binaryheap
 
 type
   StoreTopK*[T] = object

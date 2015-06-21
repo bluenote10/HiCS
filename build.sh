@@ -10,6 +10,7 @@ file=src/main.nim
 fileAbs=`readlink -m $file`
 traceback=false
 
+mkdir -p bin
 nim c -o:../bin/HiCS --parallelBuild:1 -d:testing $file
 
 compiler_exit=$?
