@@ -1,6 +1,7 @@
 import os
 import parseutils
 import strutils
+import sequtils
 import utils
 import dataset
 import preprocessing
@@ -10,6 +11,7 @@ import slicing
 import subspace
 import stattest as module_stattest
 import typetraits
+import topk
 #import optionals
 
 
@@ -35,6 +37,7 @@ Options:
   --hasHeader                     Specifies if input CSV has a header row
   --numRuns <INT>                 Number of Monte Carlo iterations to perform (default: 100)
   --numCandidates <INT>           Number of candidates in subspace beam search (default: 500)
+  --maxOutputSpaces <INT>         Maximum number of subspaces in the final output (default: 1000)
   --alpha <DOUBLE>                Size of the test statistic specified as a fraction (default 0.1)
   --onlySubspsace <INT,INT,...>]  Using this command will not perform a subspace search.
                                   Instead, HiCS will only compute the contrast of the specified
@@ -44,6 +47,22 @@ Options:
   -v, --version                   Print version information.
   -s, --silent                    Disables debug output on stdout.
 """
+
+# ----------------------------------------
+# Misc helpers
+# ----------------------------------------
+
+proc storeResults(filename: string, results: StoreTopK[(float, Subspace)]) =
+  var o = open(filename, fmWrite)
+  for contrast, subspace in results.sortedItems:
+    let subspaceSorted = subspace.asSeq.mapIt(string, $it).join(";")
+    o.writeln(ifmt"${contrast}%20.12f; ${subspaceSorted}")
+  o.close
+
+
+# ----------------------------------------
+# Command line parsing
+# ----------------------------------------
 
 proc parse*[T](s: string): tuple[okay: bool, value: T] =
   ## semi-generic parsing, TODO: use Option[T]
@@ -117,7 +136,7 @@ if args.len == 0:
   echoUsage()
 
 if hasArg("-h", "--help"):
-  echo usage
+  echoUsage()
 
 if hasArg("-v", "--version"):
   echo "HiCS version ", version
@@ -126,14 +145,15 @@ if hasArg("-v", "--version"):
 let silent = hasArg("-s", "--silent")
 let hasHeader = hasArg("--hasHeader")
 
-let numRuns       = pairExtractor("--numRuns", 100)
-let numCandidates = pairExtractor("--numCandidates", 500)
-let alpha         = pairExtractor("--alpha", 0.1)
+let numRuns         = pairExtractor("--numRuns", 100)
+let numCandidates   = pairExtractor("--numCandidates", 500)
+let maxOutputSpaces = pairExtractor("--numCandidates", 1000)
+let alpha           = pairExtractor("--alpha", 0.1)
 
-let fileI         = pairExtractor[string]("--csvIn")
-let fileO         = pairExtractor("--csvOut", "out.csv")
+let fileI           = pairExtractor[string]("--csvIn")
+let fileO           = pairExtractor("--csvOut", "out.csv")
 
-let onlySubspace = pairExtractor("--onlySubspace", [].toSubspace)
+let onlySubspace    = pairExtractor("--onlySubspace", [].toSubspace)
 
 if not silent:
   echo ifmt"Running with parameters:"
@@ -144,18 +164,26 @@ if not silent:
   echo ifmt"  numCandidates = $numCandidates"
   echo ifmt"  alpha         = $alpha"
 
+let params = initParameters(
+  numIterations = numRuns,
+  alpha = alpha,
+  numCandidates = numCandidates,
+  maxOutputSpaces = maxOutputSpaces
+)
+
+let ds = loadDataset(fileI, hasHeader, silent)
+if not silent:
+  echo ifmt"Data dimensions: ${ds.nrows} x ${$ds.ncols}"
+
 
 if onlySubspace.dimensionality == 0:
   # regular mode:
-  let ds = loadDataset(fileI)
-  let params = initParameters(numIterations=numRuns, alpha=alpha, numCandidates=numCandidates)
 
-  let results = hicsFramework(ds, params)
+  let results = hicsFramework(ds, params, verbose = not silent)
 
+  storeResults(fileO, results)
 
 else:
-  let ds = loadDataset(fileI)
-  let params = initParameters(numIterations=numRuns, alpha=alpha, numCandidates=numCandidates)
   
   let preproData = ds.generatePreprocessingData()
   let statTest = initKSTest(ds, preproData, (params.alpha * ds.nrows).toInt, verbose=not silent)
@@ -165,4 +193,7 @@ else:
   #echo ifmt"Runtime contrast calculation only: ${(t3-t2).toDouble / 1000}%.3f"
   echo ifmt"Contrast of subspace $onlySubspace"
   echo contrast
+
+
+
 

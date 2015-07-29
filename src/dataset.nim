@@ -86,7 +86,7 @@ proc cbind*(datasets: varargs[Dataset]): Dataset =
 
 
 
-proc loadDataset*(filename: string, hasHeader = false): Dataset =
+proc loadDataset*(filename: string, hasHeader = false, silent = false): Dataset =
 
   var s = newFileStream(filename, fmRead)
 
@@ -101,6 +101,7 @@ proc loadDataset*(filename: string, hasHeader = false): Dataset =
 
   var ds = newDataset()
 
+  var lineNum = 1
   while readRow(parser):
     try:
       let valuesOrig = toSeq(parser.row.items)
@@ -109,7 +110,8 @@ proc loadDataset*(filename: string, hasHeader = false): Dataset =
 
       ds.appendRow(valuesPrsd)
     except ValueError:
-      discard
+      if not silent:
+        echo ifmt"Warning: Could not parse CSV line number $lineNum"
 
   parser.close()
 

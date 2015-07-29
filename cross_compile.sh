@@ -17,10 +17,11 @@
 # - use "--cpu: amd64 --os:windows" in the compilation command below.
 # 
 
+echo -e "\n *** compiling 64 bit version"
 nim c -d:release \
     --cpu:amd64 --os:windows \
     --parallelBuild:1 --verbosity:3 \
-    -o:../bin/HiCS.exe src/main.nim
+    -o:../bin/HiCS_x64.exe src/main.nim
 
 #
 # I didn't test 32-bit cross compilation but basically it should work by:
@@ -46,6 +47,11 @@ nim c -d:release \
 #
 #
 
+echo -e "\n *** compiling 32 bit version"
+nim c -d:release \
+    --cpu:i386 --os:windows \
+    --parallelBuild:1 --verbosity:3 \
+    -o:../bin/HiCS_x86.exe src/main.nim
 
 
 
