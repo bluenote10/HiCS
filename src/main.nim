@@ -22,7 +22,6 @@ when false:
   let contrast = computeContrast([0,1].toSubspace, ds, preproData, params, statTest)
   debug contrast
 
-
 const
   version = "0.9.0"
 
