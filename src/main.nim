@@ -27,12 +27,19 @@ const
 
   usage = """
 Usage:
-  HiCS [options] CSV-IN-FILE
-
-Required Parameters:
-  INPUT-CSV-FILE                  CSV input data file.
+  HiCS [options] --csvIn <FILE>
 
 Options:
+  --csvIn <FILE>                  File name of CSV input data (requires delimiter: ';')
+  --csvOut <FILE>                 File name of subspace mining output data
+  --hasHeader                     Specifies if input CSV has a header row
+  --numRuns <INT>                 Number of Monte Carlo iterations to perform (default: 100)
+  --numCandidates <INT>           Number of candidates in subspace beam search (default: 500)
+  --alpha <DOUBLE>                Size of the test statistic specified as a fraction (default 0.1)
+  --onlySubspsace <INT,INT,...>]  Using this command will not perform a subspace search.
+                                  Instead, HiCS will only compute the contrast of the specified
+                                  subspace. Note: The list of INTs must not contain whitespace and
+                                  indexing starts at zero. For example: 0,3,12,51 
   -h, --help                      Print this help message.
   -v, --version                   Print version information.
   -s, --silent                    Disables debug output on stdout.
@@ -114,6 +121,7 @@ if hasArg("-h", "--help"):
 
 if hasArg("-v", "--version"):
   echo "HiCS version ", version
+  quit 0
 
 let silent = hasArg("-s", "--silent")
 let hasHeader = hasArg("--hasHeader")

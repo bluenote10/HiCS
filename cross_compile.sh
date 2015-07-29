@@ -24,10 +24,29 @@ nim c -d:release \
 
 #
 # I didn't test 32-bit cross compilation but basically it should work by:
-# - installing mingw32
+# - installing mingw32 (probably not needed, see below)
 # - using `--cpu:i386` in the above compilation
-# - checking the exact name of the mingw32-gcc binary 
+# - checking the exact name of the mingw32-gcc binary (probably just i686-w64-mingw32-gcc, see below)
 # - adding this name to i386.windows.gcc.* in the nim.cfg
-# 
+#
+#
+# Some resources on cross compilation:
+# - http://forum.nim-lang.org/t/1132#6973
+# - http://forum.nim-lang.org/t/1251#7712
+# - http://forum.nim-lang.org/t/251#1278
+# - http://stackoverflow.com/questions/19690504/how-do-i-compile-and-link-a-32-bit-windows-executable-using-mingw-w64
+#
+# Interestingly mingw-w64 does not only create the binaries "x86_64-w64-..." but also "i686-w64-...".
+# Explanation from this answer:
+#
+#   "Don't be put off by the rather confusing executable names:
+#    i686-w64-mingw32-gcc is the 32-bit compiler and
+#    x86_64-w64-mingw32-gcc is the 64-bit one."
+#
+#
+#
+
+
+
 
 

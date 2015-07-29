@@ -14,8 +14,14 @@ type
   Subspace* = HashSet[int]
   SubspaceSet = HashSet[Subspace]
 
+when NimVersion == "0.11.2":
+  type
+    HashAlias = THash
+else:
+  type
+    HashAlias = Hash
 
-proc hash*(s: Subspace): Hash =
+proc hash*(s: Subspace): HashAlias =
   #echo "chalculating hash for ", s
   for it in items(s):
     #echo "   hash item is ", it
