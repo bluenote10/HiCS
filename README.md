@@ -14,8 +14,11 @@ The implementation does not include the outlier detection component, i.e., it im
 ### Usage
 
 HiCS can either be used as a Nim library or via a command line frontend.
-For the convenience of Windows users I have prepared ready-to-use binaries of the command line frontend. 
+As a convenience for Windows users I have prepared ready-to-use binaries of the command line frontend. 
 There is both a [32 bit](bin/HiCS_x86.exe) and a [64 bit](bin/HiCS_x64.exe) version.
+If you are running Linux, compiling from source should probably not be a big problem -- see instructions below.
+
+Basically, HiCS takes a CSV file as input, and will return the subspace search results in an output CSV.
 
     Usage:
       HiCS [options] --csvIn <FILE>
@@ -28,7 +31,7 @@ There is both a [32 bit](bin/HiCS_x86.exe) and a [64 bit](bin/HiCS_x64.exe) vers
       --numCandidates <INT>           Number of candidates in subspace beam search (default: 500)
       --maxOutputSpaces <INT>         Maximum number of subspaces in the final output (default: 1000)
       --alpha <DOUBLE>                Size of the test statistic specified as a fraction (default 0.1)
-      --onlySubspsace <INT,INT,...>]  Using this command will not perform a subspace search.
+      --onlySubspace <INT,INT,...>]   Using this command will not perform a subspace search.
                                       Instead, HiCS will only compute the contrast of the specified
                                       subspace. Note: The list of INTs must not contain whitespace and
                                       indexing starts at zero. For example: 0,3,12,51 
@@ -36,9 +39,8 @@ There is both a [32 bit](bin/HiCS_x86.exe) and a [64 bit](bin/HiCS_x64.exe) vers
       -v, --version                   Print version information.
       -s, --silent                    Disables debug output on stdout.
 
+There is also a mode in which HiCS does not perform a complete subspace search, but instead quanfifies the contrast in a given subspace. This mode is enabled when using the `--onlySubspace` command line option.
 
-
-If you are running Linux, compiling from source should probably not be a big problem.
 
 
 ### Compiling from Source
