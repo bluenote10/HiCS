@@ -59,13 +59,10 @@ I try to maintain this code in a way that it always compiles with both the lates
 Apart from its goal as a subspace search technique, HiCS can be seen as a multivariate correlation measure.
 One of its most important features is that its "contrast notion" is defined consistently for variable sets of any cardinality >2, i.e., in general its focus is on the case of multivariate spaces.
 However, it is also interesting to look at the simple, bivariate case to illustrate its properties.
-The following example show typical bivarite relationships, including a comparison to other correlation analysis approaches: Pearson and Spearman correlation coefficients, Mutual Information (MI), and the Maximal Information Coefficient (MIC).
+The following examples show typical bivarite relationships, including a comparison to other correlation analysis approaches: Pearson and Spearman correlation coefficients, Mutual Information (MI), and the Maximal Information Coefficient (MIC).
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;text-align:center}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;width:50%;text-align:center}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
-</style>
+First some perfect functional dependencies with a 1:1 mapping between X and Y:
+
 <table class="tg">
   <tr>
     <td class="tg-031e"><img src="/../plots/plots/Linear1.png?raw=true" width="80%"></td>
@@ -86,5 +83,119 @@ The following example show typical bivarite relationships, including a compariso
   <tr>
     <td class="tg-031e"><img src="/../plots/plots/Log.png?raw=true" width="80%"></td>
     <td class="tg-031e"><img src="/../plots/plots/Sqrt.png?raw=true" width="80%"></td>
+  </tr>
+</table>
+
+An interesting property of HiCS is that it is sensitive to the multiplicity in the mapping from X to Y (and vice versa).
+For instance here we have cases where 1 value can map to 2 values in the other domain.
+This is reflected in a lower correlation result.
+It is also possible to differentiate between mappings of multiplicities 1:2, 1:3, etc.
+
+<table class="tg">  
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/ParabolaFull.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/TwoLines.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/StackedLinear1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/StackedLinear2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/TripleFuncs.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/TripleStacked.png?raw=true" width="80%"></td>
+  </tr>
+</table>
+
+This is also visible in oscillating functional dependencies...
+
+<table class="tg">  
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Sine0.25.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Sine0.5.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Sine1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Sine2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Sine5.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Sine10.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Sine20.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Sine100.png?raw=true" width="80%"></td>
+  </tr>
+</table>
+
+... step functions ...
+
+<table class="tg">  
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Step.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/StepSpecific.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Step8.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Step8Specific.png?raw=true" width="80%"></td>
+  </tr>
+</table>
+
+... or other distribution like these:
+
+<table class="tg">  
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/1Bit1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/1Bit2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/2Bit1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/2Bit2.png?raw=true" width="80%"></td>
+  </tr>
+</table>
+
+Some more noiseless manifolds:
+
+<table class="tg">  
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/NonCoexistence.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Circle.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Star.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Spiral.png?raw=true" width="80%"></td>
+  </tr>
+</table>
+
+And now some noisy distributions:
+
+<table class="tg">  
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Noisy1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Noisy2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Noisy3.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Noisy4.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Gauss1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Gauss2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/AlmostUniform1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/AlmostUniform2.png?raw=true" width="80%"></td>
+  </tr>
+</table>
+
+And finally some fully uncorrelated distribution. Note that MIC has a tendency to overestimate in such cases and may fail to detect independence:
+
+<table class="tg">  
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Uncorr1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Uncorr2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Uncorr3.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Uncorr4.png?raw=true" width="80%"></td>
   </tr>
 </table>
