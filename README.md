@@ -50,9 +50,41 @@ The required steps are:
 - Install Nimble (ideally by cloning and building [Nimble](https://github.com/nim-lang/nimble) + adding the `nimble` binary to your `PATH`)
 - Clone this repository and run `nimble build`
 
+If you are running Windows you can also install the latest stable version of Nim (which should also include Nimble).
+I try to maintain this code in a way that it always compiles with both the latest stable and devel versions of Ni.m
 
 
-### Some Examples
+### Bivariate Examples
 
-![Figure](/../plots/plots/1Bit1.png?raw=true "Figure")
+Apart from its goal as a subspace search technique, HiCS can be seen as a multivariate correlation measure.
+One of its most important features is that its "contrast notion" is defined consistently for variable sets of any cardinality >2, i.e., in general its focus is on the case of multivariate spaces.
+However, it is also interesting to look at the simple, bivariate case to illustrate its properties.
+The following example show typical bivarite relationships, including a comparison to other correlation analysis approaches: Pearson and Spearman correlation coefficients, Mutual Information (MI), and the Maximal Information Coefficient (MIC).
 
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;text-align:center}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;width:50%;text-align:center}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
+</style>
+<table class="tg">
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Linear1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Linear2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Linear3.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Linear4.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/ParabolaHalf.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Cubic.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Exp1.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Exp2.png?raw=true" width="80%"></td>
+  </tr>
+  <tr>
+    <td class="tg-031e"><img src="/../plots/plots/Log.png?raw=true" width="80%"></td>
+    <td class="tg-031e"><img src="/../plots/plots/Sqrt.png?raw=true" width="80%"></td>
+  </tr>
+</table>
