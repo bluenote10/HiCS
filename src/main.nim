@@ -39,7 +39,7 @@ Options:
   --numCandidates <INT>           Number of candidates in subspace beam search (default: 500)
   --maxOutputSpaces <INT>         Maximum number of subspaces in the final output (default: 1000)
   --alpha <DOUBLE>                Size of the test statistic specified as a fraction (default 0.1)
-  --onlySubspsace <INT,INT,...>]  Using this command will not perform a subspace search.
+  --onlySubspace <INT,INT,...>]   Using this command will not perform a subspace search.
                                   Instead, HiCS will only compute the contrast of the specified
                                   subspace. Note: The list of INTs must not contain whitespace and
                                   indexing starts at zero. For example: 0,3,12,51 
@@ -127,7 +127,7 @@ proc pairExtractor[T](name: string, default: T): T =
   return default
 
 
-# "Usage java -jar hics.jar [--numRuns <INT>] [--numCandidates <INT>] [--alpha <DOUBLE>] [--hasHeader] [--onlySubspsace <INT,INT,...>] [--csvOut <FILE>] --csvIn <FILE>")
+# "Usage java -jar hics.jar [--numRuns <INT>] [--numCandidates <INT>] [--alpha <DOUBLE>] [--hasHeader] [--onlySubspace <INT,INT,...>] [--csvOut <FILE>] --csvIn <FILE>")
 # "Note: The list of INTs must not contain whitespace and indexing starts at zero, i.e.: 0,3,12,51")
 
 
