@@ -3,7 +3,7 @@
 clear
 
 while true; do
-  ./build.sh
+  ./build_debug.sh
 
   change=$(inotifywait -r -e close_write,moved_to,create,modify . \
     --exclude 'src/main$|nimchange|#.*' \

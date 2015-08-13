@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+
 # Steps to set-up 64-bit cross compilation (for Windows under Linux):
 # - install mingw-w64 (this will provide all kinds of executable named x86_64-w64-mingw32-*)
 # - add a nim.cfg with the following content:

@@ -93,30 +93,32 @@ proc loadDataset*(filename: string, hasHeader = false, silent = false): Dataset 
   if s == nil:
     quit(ifmt"Error: Cannot open file '$filename'")
 
+  # simple heuristic to extract the separator
   var firstline = readLine(newFileStream(filename, fmRead))
-  var sep = if (firstline.count(",")> firstline.count(";")) : ',' else: ';'
+  var sep = if firstline.count(",") > firstline.count(";"): ',' else: ';'
 
   var parser: CsvParser
   parser.open(s, filename, separator=sep)
 
+  var lineNum = 1
   if hasHeader:
     discard parser.readRow()
 
   var ds = newDataset()
 
-  var lineNum = 0
-  echo ifmt"parsing csv"
   while readRow(parser):
     try:
-      inc(lineNum)
       let valuesOrig = toSeq(parser.row.items)
-      let valuesPrsd = valuesOrig.map((s: string) => parseFloat(strip(s,true,true)))
+      let valuesPrsd = valuesOrig.map((s: string) => s.strip(true,true).parseFloat)
 
       ds.appendRow(valuesPrsd)
 
     except ValueError:
       if not silent:
         echo ifmt"Warning: Could not parse CSV line number $lineNum"
-  parser.close()
+    lineNum += 1
 
+  parser.close()
   result = ds
+
+
