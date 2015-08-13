@@ -43,7 +43,7 @@ proc getCol*(ds: Dataset, i: int): Vector =
   result = newSeq[float](ds.nrows)
   for j in ds.rowIndices:
     result[j] = ds[j,i]
-    
+
 proc isValidSubspace*(ds: Dataset, s: Subspace): bool =
   let subspaceSeq = s.asSeq # subspace.toSeq(s) #s.toSeq()
   let min = subspaceSeq.min
@@ -93,26 +93,30 @@ proc loadDataset*(filename: string, hasHeader = false, silent = false): Dataset 
   if s == nil:
     quit(ifmt"Error: Cannot open file '$filename'")
 
+  var firstline = readLine(newFileStream(filename, fmRead))
+  var sep = if (firstline.count(",")> firstline.count(";")) : ',' else: ';'
+
   var parser: CsvParser
-  parser.open(s, filename, separator=';')
+  parser.open(s, filename, separator=sep)
 
   if hasHeader:
     discard parser.readRow()
 
   var ds = newDataset()
 
-  var lineNum = 1
+  var lineNum = 0
+  echo ifmt"parsing csv"
   while readRow(parser):
     try:
+      inc(lineNum)
       let valuesOrig = toSeq(parser.row.items)
-      let valuesPrsd = valuesOrig.map((s: string) => s.parseFloat)
-      #let valuesPrsd = valuesOrig.map(proc (s: string): float = s.parseFloat)
+      let valuesPrsd = valuesOrig.map((s: string) => parseFloat(strip(s,true,true)))
 
       ds.appendRow(valuesPrsd)
+
     except ValueError:
       if not silent:
         echo ifmt"Warning: Could not parse CSV line number $lineNum"
-
   parser.close()
 
   result = ds
