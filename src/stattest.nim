@@ -3,6 +3,7 @@ import dataset
 import preprocessing
 import slicing
 import utils
+import strformat
 
 type
   KSTest* = object
@@ -76,13 +77,13 @@ proc initKSTest*(
   assert(M > 0, "expectedSampleSize must be larger than zero.")
   assert(M < N, "expectedSampleSize must be smaller than the total sample size.")
   # TODO: preproData.fitsTo(ds)
-  
+
   let expectedMinDev = determineExpectedMinDeviation(N, M, calibrationIterations)
   let expectedMaxDev = determineExpectedMaxDeviation(N, M)
 
   if verbose:
-    echo ifmt"KS expectations:    min value = $expectedMinDev    max value = $expectedMaxDev"
-  
+    echo &"KS expectations:    min value = {expectedMinDev}    max value = {expectedMaxDev}"
+
   KSTest(N: N, M: M,
          preproData: preproData,
          applyCalibration: applyCalibration,
@@ -94,7 +95,7 @@ proc initKSTest*(
 proc computeDeviation*(ks: KSTest, ds: Dataset, cmpAttr: int, selection: IndexSelection): float =
 
   let numRemainingObjects = selection.getM
-  
+
   var cumulatedDistOrig = 0.0
   var cumulatedDistTest = 0.0
   var maxDiscrepancy = -Inf
@@ -115,4 +116,4 @@ proc computeDeviation*(ks: KSTest, ds: Dataset, cmpAttr: int, selection: IndexSe
     result = maxDiscrepancy
   else:
     result = (maxDiscrepancy - ks.expectedMinDev) / (ks.expectedMaxDev - ks.expectedMinDev)
-  
+

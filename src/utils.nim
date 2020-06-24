@@ -1,14 +1,11 @@
 
 import macros
 import sequtils
-import parseutils
 import math
-import stringinterpolation
+import random
 
-export ifmt, format, formatUnsafe
-#import tables
 
-macro debug*(n: varargs[expr]): stmt =
+macro debug*(n: varargs[typed]): untyped =
   # `n` is a Nim AST that contains the whole macro invocation
   # this macro returns a list of statements:
   result = newNimNode(nnkStmtList, n)
@@ -27,7 +24,7 @@ macro debug*(n: varargs[expr]): stmt =
       add(result, newCall("write", newIdentNode("stdout"), newStrLitNode(", ")))
 
   # add new line
-  add(result, newCall("writeln", newIdentNode("stdout"), newStrLitNode("")))
+  add(result, newCall("writeLine", newIdentNode("stdout"), newStrLitNode("")))
 
 
 proc `*`*(x: float, y: int): float = x * y.toFloat
@@ -36,14 +33,14 @@ proc `/`*(x: float, y: int): float = x / y.toFloat
 proc `/`*(x: int, y: float): float = x.toFloat / y
 
 
-template UnitTests*(name: string, code: stmt): stmt {.immediate.} =
+template UnitTests*(name: string, code: untyped): untyped =
   when defined(testHiCS):
     import unittest
     suite(name):
       code
 
 
-template indices*(expr): expr = low(expr) .. high(expr)
+template indices*(expression): untyped = low(expression) .. high(expression)
 
 when false:
   proc reverse*[T](iter: iterator: T): iterator (): T =
@@ -63,7 +60,7 @@ proc shuffle*[T](a: openarray[T]): seq[T] =
   let N = a.len
   result = toSeq(a.items)
   for i in countdown(N-1, 1):
-    let j = random(i+1)
+    let j = rand(i+1)
     let tmp = result[i]
     result[i] = result[j]
     result[j] = tmp
@@ -78,9 +75,9 @@ proc zipWithIndex*[T](s: seq[T]): seq[tuple[index: int, value: T]] =
 
 #proc mgetDefault[A, B](t: var Table[A, B]; key: A): var B =
 
-template ijForLoop*(N: int, s: stmt): stmt {.immediate.} =
+template ijForLoop*(N: int, s: untyped): untyped =
   for ii in 0 ..< N-1:
-    for jj in ii+1 .. <N:
+    for jj in ii+1 ..< N:
       let i {.inject.} = ii
       let j {.inject.} = jj
       s

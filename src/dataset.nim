@@ -1,11 +1,11 @@
 
-import os, parsecsv, streams, future, strutils
+import parsecsv, streams, strutils
 #import sequtils except toSeq
 import sequtils
 import subspace
-import utils
-import future
+import sugar
 import sets
+import strformat
 
 type
   Vector* = seq[float] # not nil
@@ -25,14 +25,14 @@ proc ncols*(ds: Dataset): int =
   else:
     ds.data[0].len
 
-template colIndices*(ds: Dataset): expr = 0 .. <ds.ncols
+template colIndices*(ds: Dataset): untyped = 0 ..< ds.ncols
 
-template rowIndices*(ds: Dataset): expr = 0 .. <ds.nrows
+template rowIndices*(ds: Dataset): untyped = 0 ..< ds.nrows
 
 
 proc `[]`*(ds: Dataset, i: int, j: int): float = ds.data[i][j]
 
-proc `$`*(ds: Dataset): string = "Dataset(" & $ds.nrows & "x"& $ds.ncols & ")"
+proc `$`*(ds: Dataset): string = "Dataset(" & $ds.nrows & "x" & $ds.ncols & ")"
 
 proc getRow*(ds: Dataset, i: int): Vector =
   result = newSeq[float](ds.ncols)
@@ -67,7 +67,7 @@ proc appendCol*(ds: var Dataset, col: Vector) =
 
 
 proc rbind*(datasets: varargs[Dataset]): Dataset =
-  let ncolsAll = datasets.map((d: Dataset) => d.ncols).toSet
+  let ncolsAll = datasets.map((d: Dataset) => d.ncols).toHashSet
   assert(ncolsAll.len == 1)
   result = newDataset()
   for ds in datasets:
@@ -75,7 +75,7 @@ proc rbind*(datasets: varargs[Dataset]): Dataset =
       result.appendRow(ds.getRow(row))
 
 proc cbind*(datasets: varargs[Dataset]): Dataset =
-  let nrowsAll = datasets.map((d: Dataset) => d.nrows).toSet
+  let nrowsAll = datasets.map((d: Dataset) => d.nrows).toHashSet
   assert(nrowsAll.len == 1)
   result = newDataset()
   for ds in datasets:
@@ -91,7 +91,7 @@ proc loadDataset*(filename: string, hasHeader = false, silent = false): Dataset 
   var s = newFileStream(filename, fmRead)
 
   if s == nil:
-    quit(ifmt"Error: Cannot open file '$filename'")
+    quit(&"Error: Cannot open file '{filename}'")
 
   # simple heuristic to extract the separator
   var firstline = readLine(newFileStream(filename, fmRead))
@@ -115,7 +115,7 @@ proc loadDataset*(filename: string, hasHeader = false, silent = false): Dataset 
 
     except ValueError:
       if not silent:
-        echo ifmt"Warning: Could not parse CSV line number $lineNum"
+        echo &"Warning: Could not parse CSV line number {lineNum}"
     lineNum += 1
 
   parser.close()

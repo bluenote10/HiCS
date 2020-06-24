@@ -3,11 +3,12 @@ import dataset
 import hics
 import math
 import utils
+import random
 
 proc testData2DLinear*(N: int, slope = 1.0): Dataset =
   result = newDataset()
   for i in 0 ..< N:
-    let x = random(1.0)
+    let x = rand(1.0)
     let y = slope * x
     result.appendRow(@[x, y])
 
@@ -18,18 +19,18 @@ proc randomSubspacePartition(D, maxSubspaceDim: int): seq[int] =
   while result.sum < D:
     let remaining = D - result.sum
     let maxRand = min(remaining, maxSubspaceDim)
-    let rand = random(maxRand) + 1
+    let rand = rand(maxRand) + 1
     result.add(rand)
   assert(result.sum == D)
 
 proc generatorMultivariateLinear(N, D: int): Dataset =
   result = newDataset()
   for i in 0 ..< N:
-    let x = random(1.0)
+    let x = rand(1.0)
     var s = newSeq[float](D)
     for i, e in s: s[i] = x
     result.appendRow(s)
-  
+
 proc testDataHighDim(N, D, maxSubspaceDim: int, generator: proc (d: int): Dataset): (Dataset, seq[int]) =
   let subspaceDims = randomSubspacePartition(D, maxSubspaceDim)
 
@@ -58,7 +59,7 @@ UnitTests("testdata"):
 
     let result = hicsFramework(data, params, verbose=false)
 
-  
+
 
 
 

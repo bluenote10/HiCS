@@ -1,13 +1,14 @@
 import dataset
 import utils
 import algorithm
-import future
+import sugar
+import sequtils
 
 type
-  IndexMap = seq[int] # not nil
-  
+  IndexMap = seq[int]
+
   PreproData* = object
-    indexMaps*: seq[IndexMap] not nil
+    indexMaps*: seq[IndexMap]
 
 
 proc generatePreprocessingData*(ds: Dataset): PreproData =

@@ -1,6 +1,7 @@
 
 import utils
 import math
+import random
 
 when defined(testHiCS):
   import tables
@@ -56,7 +57,7 @@ proc selectBlock*(isel: var IndexSelection, M: int, offset: int) =
 
 proc selectRandomBlock*(isel: var IndexSelection, M: int) =
   let possibleOffsets = isel.possibleOffsets(M)
-  let offset = random(possibleOffsets.max+1)
+  let offset = rand(possibleOffsets.max+1)
   isel.selectBlock(M, offset)
 
 proc selectRandomly*(isel: var IndexSelection, M: int) =
@@ -68,10 +69,10 @@ proc selectRandomly*(isel: var IndexSelection, M: int) =
   var m = 0 # number of items selected so far
 
   while (m < M):
-    let u = random(1.0) # call a uniform(0,1) random number generator
+    let u = rand(1.0) # call a uniform(0,1) random number generator
 
     #debug N, M, t, m, u, (N-t)*u, M-m
-    
+
     # meaning of these terms:
     # (N - t) is the total number of remaining draws left (initially just N)
     # (M - m) is the number how many of these remaining draw must be positive (initially just M)
@@ -109,7 +110,7 @@ proc newIndexSelection*(N: int, default = false): IndexSelection =
   result = newSeq[bool](N)
   if default == true:
     result.reset(true)
-    
+
 UnitTests("selection"):
 
   test "IndexSelection.possibleOffsets":

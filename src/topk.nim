@@ -16,10 +16,13 @@ proc newTupleStoreTopK*[K,V](k: int, keepLarge: bool = true):
   StoreTopK[tuple[k: K,v: V]] = # looks like (K,V) does not work here
   ## generates a top-k store of type "key-value-tuple", where the
   ## top k elements are only determined w.r.t. the key of the tuple.
+
+  let keepLargeLocal = keepLarge
+
   proc cmpByKey[K,V](x: (K,V), y: (K,V)): int =
     # in order to keep "large" values we need a min-heap
     # where as "small" values require a max-heap.
-    if keepLarge:
+    if keepLargeLocal:
       system.cmp(x[0], y[0])
     else:
       system.cmp(y[0], x[0])
@@ -54,13 +57,14 @@ when isMainModule:
   import math
   import sequtils
   import algorithm
-  
+  import random
+
   block:
     let N = 100
     var stk = newStoreTopK[float](5)
 
     for i in 1 .. 100:
-      stk.add(random(1000.0))
+      stk.add(rand(1000.0))
       let values = toSeq(stk.sortedItems)
       #echo values
 
@@ -69,11 +73,11 @@ when isMainModule:
 
     type
       NotComparable = object
-    
+
     var stk = newTupleStoreTopK[int, NotComparable](5, true)
 
     for i in 1 .. 20:
-      stk.add((random(1000), NotComparable()))
+      stk.add((rand(1000), NotComparable()))
       let values = toSeq(stk.sortedItems)
       echo values
 

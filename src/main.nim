@@ -12,6 +12,8 @@ import subspace
 import stattest as module_stattest
 import typetraits
 import topk
+import strformat
+import sequtils
 #import optionals
 
 
@@ -42,7 +44,7 @@ Options:
   --onlySubspace <INT,INT,...>]   Using this command will not perform a subspace search.
                                   Instead, HiCS will only compute the contrast of the specified
                                   subspace. Note: The list of INTs must not contain whitespace and
-                                  indexing starts at zero. For example: 0,3,12,51 
+                                  indexing starts at zero. For example: 0,3,12,51
   -h, --help                      Print this help message.
   -v, --version                   Print version information.
   -s, --silent                    Disables debug output on stdout.
@@ -55,8 +57,8 @@ Options:
 proc storeResults(filename: string, results: StoreTopK[(float, Subspace)]) =
   var o = open(filename, fmWrite)
   for contrast, subspace in results.sortedItems:
-    let subspaceSorted = subspace.asSeq.mapIt(string, $it).join(";")
-    o.writeln(ifmt"${contrast}%20.12f; ${subspaceSorted}")
+    let subspaceSorted = subspace.asSeq.mapIt($it).join(";")
+    o.writeLine(&"{contrast}%20.12f; {subspaceSorted}")
   o.close
 
 
@@ -106,24 +108,24 @@ proc pairExtractor[T](name: string): T =
   for i in 0 ..< args.len:
     if args[i] == name:
       if i == args.len-1:
-        quit ifmt"Error: The parameter '$name' must be followed by a value of type ${T.name}."
+        quit &"Error: The parameter '{name}' must be followed by a value of type {T.name}."
       let parse = parse[T](args[i+1])
       if parse.okay:
         return parse.value
       else:
-        quit ifmt"Error: Value for parameter '$name' cannot be cast to ${T.name} (value given was: '${args[i+1]}')."
-  quit ifmt"Error: The parameter '$name' was not specified but is mandatory."
+        quit &"Error: Value for parameter '{name}' cannot be cast to {T.name} (value given was: '{args[i+1]}')."
+  quit &"Error: The parameter '{name}' was not specified but is mandatory."
 
 proc pairExtractor[T](name: string, default: T): T =
   for i in 0 ..< args.len:
     if args[i] == name:
       if i == args.len-1:
-        quit ifmt"Error: The parameter '$name' must be followed by a value of type ${T.name}."
+        quit &"Error: The parameter '{name}' must be followed by a value of type {T.name}."
       let parse = parse[T](args[i+1])
       if parse.okay:
         return parse.value
       else:
-        quit ifmt"Error: Value for parameter '$name' cannot be cast to ${T.name} (value given was: '${args[i+1]}')."
+        quit &"Error: Value for parameter '{name}' cannot be cast to {T.name} (value given was: '{args[i+1]}')."
   return default
 
 
@@ -156,13 +158,13 @@ let fileO           = pairExtractor("--csvOut", "out.csv")
 let onlySubspace    = pairExtractor("--onlySubspace", [].toSubspace)
 
 if not silent:
-  echo ifmt"Running with parameters:"
-  echo ifmt"  csvIn         = $fileI"
-  echo ifmt"  csvOut        = $fileO"
-  echo ifmt"  hasHeader     = $hasHeader"
-  echo ifmt"  numRuns       = $numRuns"
-  echo ifmt"  numCandidates = $numCandidates"
-  echo ifmt"  alpha         = $alpha"
+  echo &"Running with parameters:"
+  echo &"  csvIn         = {fileI}"
+  echo &"  csvOut        = {fileO}"
+  echo &"  hasHeader     = {hasHeader}"
+  echo &"  numRuns       = {numRuns}"
+  echo &"  numCandidates = {numCandidates}"
+  echo &"  alpha         = {alpha}"
 
 let params = initParameters(
   numIterations = numRuns,
@@ -173,7 +175,7 @@ let params = initParameters(
 
 let ds = loadDataset(fileI, hasHeader, silent)
 if not silent:
-  echo ifmt"Data dimensions: ${ds.nrows} x ${$ds.ncols}"
+  echo &"Data dimensions: {ds.nrows} x {$ds.ncols}"
 
 
 if onlySubspace.dimensionality == 0:
@@ -184,14 +186,14 @@ if onlySubspace.dimensionality == 0:
   storeResults(fileO, results)
 
 else:
-  
+
   let preproData = ds.generatePreprocessingData()
   let statTest = initKSTest(ds, preproData, (params.alpha * ds.nrows).toInt, verbose=not silent)
   let contrast = computeContrast([0,1].toSubspace, ds, preproData, params, statTest)
-  
+
   #echo ifmt"Runtime with preprocessing: ${(t3-t1).toDouble / 1000}%.3f"
   #echo ifmt"Runtime contrast calculation only: ${(t3-t2).toDouble / 1000}%.3f"
-  echo ifmt"Contrast of subspace $onlySubspace"
+  echo &"Contrast of subspace {onlySubspace}"
   echo contrast
 
 

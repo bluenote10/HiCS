@@ -6,6 +6,7 @@ import sequtils
 import utils
 import math
 import algorithm
+import random
 
 # to allow s.incl(i)
 export sets.incl
@@ -30,7 +31,7 @@ proc hash*(s: Subspace): HashAlias =
   result = !$result
 
 proc toSubspace*(s: openarray[int]): Subspace =
-  s.toSet
+  s.toHashSet
 
 proc toSubspace*(s: Slice[int]): Subspace =
   result.init()
@@ -50,7 +51,7 @@ proc `$`*(s: Subspace): string =
   sortedStr[1..^1] # drop the @
 
 proc randomDim*(s: Subspace): int {.inline.} =
-  let randomI = random(s.len)
+  let randomI = rand(s.len)
   var i = 0
   for x in s:
     if i == randomI:
@@ -68,10 +69,10 @@ iterator lowDimProjections*(s: Subspace): Subspace =
 
 
 proc newSubspaceSet*(): SubspaceSet =
-  result = initSet[Subspace]()
+  result = initHashSet[Subspace]()
 
 proc generate2DSubspaces*(D: int): SubspaceSet =
-  result = initSet[Subspace]()
+  result = initHashSet[Subspace]()
   ijForLoop(D):
     let subspace = [i,j].toSubspace
     result.incl(subspace)
@@ -91,7 +92,7 @@ proc aprioriMerge*(subspaces: SubspaceSet): SubspaceSet =
     let suffix = subspaceSeq[^1]
 
     try:
-      prefixSuffixMap.mget(prefix).add(suffix)
+      prefixSuffixMap.mgetOrPut(prefix, @[]).add(suffix)
     except KeyError:
       prefixSuffixMap[prefix] = @[suffix]
     #debug subspace, prefix, suffix, prefixSuffixMap[prefix]
@@ -125,8 +126,8 @@ proc aprioriMerge*(subspaces: SubspaceSet): SubspaceSet =
     if allTrue:
       validCandidates.add(candidate)
   #debug validCandidates
-  
-  return validCandidates.toSet
+
+  return validCandidates.toHashSet
 
 
 
@@ -161,7 +162,7 @@ UnitTests("aprioriMerge"):
     let s2 = [1,2,4].toSubspace
     let s3 = [2,3,4].toSubspace
     let s4 = [1,3,4].toSubspace
-    let res = aprioriMerge([s1,s2,s3,s4].toSet)
+    let res = aprioriMerge([s1,s2,s3,s4].toHashSet)
     check res.len == 1
     check ([1,2,3,4].toSubspace in res)
 
@@ -170,25 +171,25 @@ UnitTests("aprioriMerge"):
     let s2 = [0, 2, 3, 4].toSubspace
     let s3 = [0, 1, 2, 3].toSubspace
     let s4 = [1, 2, 3, 4].toSubspace
-    let s5 = [0, 1, 2, 4].toSubspace 
-    let res = aprioriMerge([s1,s2,s3,s4,s5].toSet)
+    let s5 = [0, 1, 2, 4].toSubspace
+    let res = aprioriMerge([s1,s2,s3,s4,s5].toHashSet)
     check res.len == 1
     check contains(res, ([0,1,2,3,4].toSubspace))
 
   test "created from lower dims (one step)":
     for N in 2..5:
       let base = (1..N).toSubspace
-      var subspaces = initSet[Subspace]()
+      var subspaces = initHashSet[Subspace]()
       for s in base.lowDimProjections:
         subspaces.incl(s)
       #debug subspaces
       let merged = aprioriMerge(subspaces)
       check merged.len == 1
-    
+
   test "created from lower dims (multiple steps)":
     let N = 5
     let base = (1..N).toSubspace
-    var subspaces = initSet[Subspace]()
+    var subspaces = initHashSet[Subspace]()
     for s1 in base.lowDimProjections: # 4 dim
       for s2 in s1.lowDimProjections: # 3 dim
         for s3 in s2.lowDimProjections: # 2 dim
